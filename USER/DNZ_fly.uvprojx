@@ -445,11 +445,6 @@
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\system_stm32f10x.c</FilePath>
             </File>
-            <File>
-              <FileName>scheduler.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HAL\scheduler.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -529,6 +524,16 @@
               <FileName>data_process.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HAL\data_process.c</FilePath>
+            </File>
+            <File>
+              <FileName>ANO_USART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\ANO_USART.c</FilePath>
+            </File>
+            <File>
+              <FileName>scheduler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\scheduler.c</FilePath>
             </File>
           </Files>
         </Group>

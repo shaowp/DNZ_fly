@@ -10,6 +10,8 @@
 		"scheduler.h": "c",
 		"delay.h": "c",
 		"timer.h": "c",
-		"imu.h": "c"
+		"imu.h": "c",
+		"ano_usart.h": "c",
+		"usart.h": "c"
 	}
 }

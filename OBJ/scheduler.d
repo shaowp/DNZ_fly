@@ -40,3 +40,4 @@
 ..\obj\scheduler.o: ..\MATH\kalman.h
 ..\obj\scheduler.o: ..\MATH\IMU.h
 ..\obj\scheduler.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\scheduler.o: ..\HAL\ANO_USART.h

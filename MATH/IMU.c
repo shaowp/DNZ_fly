@@ -51,7 +51,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	float hx, hy, hz, bx, bz;
 	float vx, vy, vz, wx, wy, wz;
 	float ex, ey, ez;
-//xo11.00	 yo-188.00	 zo4.00	 0.98	 1.07
+	//xo11.00	 yo-188.00	 zo4.00	 0.98	 1.07
 	//先把这些用得到的值算好
 	float q0q0 = q0 * q0;
 	float q0q1 = q0 * q1;
@@ -84,7 +84,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	mx = mx * norm;
 	my = my * norm;
 	mz = mz * norm;
-	
+
 	// printf("mx%.2f\tmy%.2f\tmz%.2f\t",mx,my,mz);
 
 	//磁力计算法
@@ -175,27 +175,33 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	angle_x *= RtA;
 	angle_y *= RtA;
 	angle_z *= RtA;
-	IMU.roll = angle_y;
-	IMU.pitch = angle_x;
-	IMU.yaw = angle_z;
-	// printf("yaw%.2f\n",IMU.yaw);
+	///原来的，没考虑方向性
+	//好像磁力计的方向是对的，但是6050的方向好像反了
+	// IMU.roll = angle_x;
+	// IMU.pitch = angle_y;
+	// IMU.yaw_mag = angle_z; //磁力计融合出来的数据
+
+	//考虑到方向性
+	IMU.roll = angle_x;
+	IMU.pitch = -angle_y;
+	IMU.yaw_mag = angle_z; //磁力计融合出来的数据
+
 	/*偏航角一阶互补*/
-	// if ((yaw_G > 3.0f) || (yaw_G < -3.0f)) //数据太小可以认为是干扰，不是偏航动作
-	// {
-	// 	IMU.yaw += yaw_G * 0.005;
-	// 	if ((IMU.yaw_mag > 90 && IMU.yaw < -90) || (IMU.yaw_mag < -90 && IMU.yaw > 90))
-	// 		IMU.yaw = -IMU.yaw * 0.9f + IMU.yaw_mag * 0.1f;
-	// 	else
-	// 		IMU.yaw = IMU.yaw * 0.9f + IMU.yaw_mag * 0.1f;
-	// }
+	if ((yaw_G > 2.0f) || (yaw_G < -2.0f)) //数据太小可以认为是干扰，不是偏航动作
+	{
+		IMU.yaw += gz * Gyro_G * 0.005;
+	}
+	if ((IMU.yaw_mag > 90 && IMU.yaw < -90) || (IMU.yaw_mag < -90 && IMU.yaw > 90))
+		IMU.yaw = -IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
+	else
+		IMU.yaw = IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
 
+	//***************主要是为了计算偏航角，但是没用到，节省计算量*****************/
 	//倾斜角度的三角函数值
-	IMU.Cos_Pitch = cos(IMU.pitch * AtR);
-	IMU.Sin_Pitch = sin(IMU.pitch * AtR);
-	IMU.Cos_Roll = cos(IMU.roll * AtR);
-	IMU.Sin_Roll = sin(IMU.roll * AtR);
-	IMU.Cos_Yaw = cos(IMU.yaw * AtR);
-	IMU.Sin_Yaw = sin(IMU.yaw * AtR);
-
-	//printf("roll:%.2f\tpitch:%.2f\tyaw:%.2f\t \n", IMU.roll, IMU.pitch, IMU.yaw);
+	// IMU.Cos_Pitch = cos(IMU.pitch * AtR);
+	// IMU.Sin_Pitch = sin(IMU.pitch * AtR);
+	// IMU.Cos_Roll = cos(IMU.roll * AtR);
+	// IMU.Sin_Roll = sin(IMU.roll * AtR);
+	// IMU.Cos_Yaw = cos(IMU.yaw * AtR);
+	// IMU.Sin_Yaw = sin(IMU.yaw * AtR);
 }

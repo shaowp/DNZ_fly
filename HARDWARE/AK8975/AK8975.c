@@ -82,7 +82,7 @@ int8_t AK8975_Updata(void)
 	AK8975_MAG.G_mz = AK8975_MAG.B2 * G_mx + AK8975_MAG.B4 * G_my + AK8975_MAG.B5 * G_mz;
 
 	//数据放到磁力计主数据
-	AK8975_MAG.mx = -AK8975_MAG.G_mx * 341.0;	//特别注意方向，方向非常重要
+	AK8975_MAG.mx = -AK8975_MAG.G_mx * 341.0; //特别注意方向，方向非常重要
 	AK8975_MAG.my = AK8975_MAG.G_my * 341.0;
 	AK8975_MAG.mz = AK8975_MAG.G_mz * 341.0;
 

@@ -38,3 +38,6 @@
 ..\obj\main.o: ..\HAL\data_process.h
 ..\obj\main.o: ..\MATH\kalman.h
 ..\obj\main.o: ..\HARDWARE\TIMER\timer.h
+..\obj\main.o: ..\MATH\IMU.h
+..\obj\main.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\main.o: ..\HAL\ANO_USART.h
