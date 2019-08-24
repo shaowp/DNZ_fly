@@ -35,3 +35,6 @@
 ..\obj\main.o: ..\HARDWARE\SOFT_IIC\softiic.h
 ..\obj\main.o: ..\HARDWARE\MPU6050\mpu6050.h
 ..\obj\main.o: ..\HARDWARE\AK8975\AK8975.h
+..\obj\main.o: ..\HAL\data_process.h
+..\obj\main.o: ..\MATH\kalman.h
+..\obj\main.o: ..\HARDWARE\TIMER\timer.h

@@ -1,19 +1,8 @@
 #include "mpu6050.h"
-#include "sys.h"
-#include "delay.h"
-#include "usart.h"
-//////////////////////////////////////////////////////////////////////////////////
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK精英STM32开发板V3
-//MPU6050 驱动代码
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//创建日期:2015/1/17
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved
-//////////////////////////////////////////////////////////////////////////////////
+
+
+#define NEED_CAL_GYRO
+#define NEED_CAL_ACC
 
 //初始化MPU6050
 //返回值:0,成功
@@ -36,7 +25,7 @@ u8 MPU_Init(void)
 	{
 		MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); //设置CLKSEL,PLL X轴为参考
 		MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); //加速度与陀螺仪都工作
-		MPU_Set_Rate(600);						 //设置采样率为600Hz
+		MPU_Set_Rate(300);						 //设置采样率为600Hz
 		printf("MPU INIT SUCCESS\n");
 	}
 	else
@@ -44,6 +33,16 @@ u8 MPU_Init(void)
 		printf("MPU INIT ERROR\n");
 		return 1;
 	}
+
+	//设置变量的offset
+	MPU_GYRO.gyrox_offset = -112;
+	MPU_GYRO.gyroy_offset = 101;
+	MPU_GYRO.gyroz_offset = 4;
+
+	MPU_ACC.accx_offset = 0;
+	MPU_ACC.accy_offset = 0;
+	MPU_ACC.accz_offset = 0;
+
 	return 0;
 }
 //设置MPU6050陀螺仪传感器满量程范围
@@ -119,15 +118,18 @@ short MPU_Get_Temperature(void)
 u8 MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
 {
 	u8 buf[6], res;
+	short temp_gx, temp_gy, temp_gz;
 	res = MPU_Read_Len(MPU_ADDR, MPU_GYRO_XOUTH_REG, 6, buf);
 	if (res == 0)
 	{
-		*gx = ((u16)buf[0] << 8) | buf[1];
-		*gy = ((u16)buf[2] << 8) | buf[3];
-		*gz = ((u16)buf[4] << 8) | buf[5];
+		temp_gx = ((u16)buf[0] << 8) | buf[1];
+		temp_gy = ((u16)buf[2] << 8) | buf[3];
+		temp_gz = ((u16)buf[4] << 8) | buf[5];
 	}
+	MPU_GYRO.gyrox = temp_gx - MPU_GYRO.gyrox_offset;
+	MPU_GYRO.gyroy = temp_gy - MPU_GYRO.gyroy_offset;
+	MPU_GYRO.gyroz = temp_gz - MPU_GYRO.gyroz_offset;
 	return res;
-	;
 }
 //得到加速度值(原始值)
 //gx,gy,gz:陀螺仪x,y,z轴的原始读数(带符号)
@@ -136,15 +138,18 @@ u8 MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
 u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 {
 	u8 buf[6], res;
+	short temp_ax, temp_ay, temp_az;
 	res = MPU_Read_Len(MPU_ADDR, MPU_ACCEL_XOUTH_REG, 6, buf);
 	if (res == 0)
 	{
-		*ax = ((u16)buf[0] << 8) | buf[1];
-		*ay = ((u16)buf[2] << 8) | buf[3];
-		*az = ((u16)buf[4] << 8) | buf[5];
+		temp_ax = ((u16)buf[0] << 8) | buf[1];
+		temp_ay = ((u16)buf[2] << 8) | buf[3];
+		temp_az = ((u16)buf[4] << 8) | buf[5];
 	}
+	MPU_ACC.accx = temp_ax - MPU_ACC.accx_offset;
+	MPU_ACC.accy = temp_ay - MPU_ACC.accy_offset;
+	MPU_ACC.accz = temp_az - MPU_ACC.accz_offset;
 	return res;
-	;
 }
 //IIC连续写
 //addr:器件地址
@@ -158,13 +163,13 @@ u8 MPU_Write_Len(u8 addr, u8 reg, u8 len, u8 *buf)
 	u8 i;
 	SOFT_IIC_Start();
 	SOFT_IIC_Send_Byte((addr << 1) | 0); //发送器件地址+写命令
-	if (SOFT_IIC_Wait_Ack())				//等待应答
+	if (SOFT_IIC_Wait_Ack())			 //等待应答
 	{
 		SOFT_IIC_Stop();
 		return 1;
 	}
 	SOFT_IIC_Send_Byte(reg); //写寄存器地址
-	SOFT_IIC_Wait_Ack();		//等待应答
+	SOFT_IIC_Wait_Ack();	 //等待应答
 	for (i = 0; i < len; i++)
 	{
 		SOFT_IIC_Send_Byte(buf[i]); //发送数据
@@ -188,16 +193,16 @@ u8 MPU_Read_Len(u8 addr, u8 reg, u8 len, u8 *buf)
 {
 	SOFT_IIC_Start();
 	SOFT_IIC_Send_Byte((addr << 1) | 0); //发送器件地址+写命令
-	if (SOFT_IIC_Wait_Ack())				//等待应答
+	if (SOFT_IIC_Wait_Ack())			 //等待应答
 	{
 		SOFT_IIC_Stop();
 		return 1;
 	}
 	SOFT_IIC_Send_Byte(reg); //写寄存器地址
-	SOFT_IIC_Wait_Ack();		//等待应答
+	SOFT_IIC_Wait_Ack();	 //等待应答
 	SOFT_IIC_Start();
 	SOFT_IIC_Send_Byte((addr << 1) | 1); //发送器件地址+读命令
-	SOFT_IIC_Wait_Ack();					//等待应答
+	SOFT_IIC_Wait_Ack();				 //等待应答
 	while (len)
 	{
 		if (len == 1)
@@ -219,13 +224,13 @@ u8 MPU_Write_Byte(u8 reg, u8 data)
 {
 	SOFT_IIC_Start();
 	SOFT_IIC_Send_Byte((MPU_ADDR << 1) | 0); //发送器件地址+写命令
-	if (SOFT_IIC_Wait_Ack())					//等待应答
+	if (SOFT_IIC_Wait_Ack())				 //等待应答
 	{
 		SOFT_IIC_Stop();
 		return 1;
 	}
 	SOFT_IIC_Send_Byte(reg);  //写寄存器地址
-	SOFT_IIC_Wait_Ack();		 //等待应答
+	SOFT_IIC_Wait_Ack();	  //等待应答
 	SOFT_IIC_Send_Byte(data); //发送数据
 	if (SOFT_IIC_Wait_Ack())  //等待ACK
 	{
@@ -243,13 +248,76 @@ u8 MPU_Read_Byte(u8 reg)
 	u8 res;
 	SOFT_IIC_Start();
 	SOFT_IIC_Send_Byte((MPU_ADDR << 1) | 0); //发送器件地址+写命令
-	SOFT_IIC_Wait_Ack();						//等待应答
-	SOFT_IIC_Send_Byte(reg);					//写寄存器地址
-	SOFT_IIC_Wait_Ack();						//等待应答
+	SOFT_IIC_Wait_Ack();					 //等待应答
+	SOFT_IIC_Send_Byte(reg);				 //写寄存器地址
+	SOFT_IIC_Wait_Ack();					 //等待应答
 	SOFT_IIC_Start();
 	SOFT_IIC_Send_Byte((MPU_ADDR << 1) | 1); //发送器件地址+读命令
-	SOFT_IIC_Wait_Ack();						//等待应答
-	res = SOFT_IIC_Read_Byte(0);				//读取数据,发送nACK
-	SOFT_IIC_Stop();							//产生一个停止条件
+	SOFT_IIC_Wait_Ack();					 //等待应答
+	res = SOFT_IIC_Read_Byte(0);			 //读取数据,发送nACK
+	SOFT_IIC_Stop();						 //产生一个停止条件
 	return res;
 }
+
+void Gyro_Calibartion(void)
+{
+	uint8_t k = 30;
+	int32_t g_Gyro_xoffset = 0, g_Gyro_yoffset = 0, g_Gyro_zoffset = 0;
+	int16_t LastGyro[3] = {0};
+	int16_t ErrorGyro[3];
+	const int8_t MAX_GYRO_QUIET = 5;
+	const int8_t MIN_GYRO_QUIET = -5;
+	short temp_gx, temp_gy, temp_gz;
+	u8 buf[6], res, i;
+	//需要先判断飞控是否禁止
+	while (k--)
+	{
+		do
+		{
+			delay_ms(10);
+			res = MPU_Read_Len(MPU_ADDR, MPU_GYRO_XOUTH_REG, 6, buf);
+			if (res == 0)
+			{
+				temp_gx = ((u16)buf[0] << 8) | buf[1];
+				temp_gy = ((u16)buf[2] << 8) | buf[3];
+				temp_gz = ((u16)buf[4] << 8) | buf[5];
+			}
+			ErrorGyro[0] = temp_gx - LastGyro[0];
+			ErrorGyro[1] = temp_gy - LastGyro[1];
+			ErrorGyro[2] = temp_gz - LastGyro[2];
+			LastGyro[0] = temp_gx;
+			LastGyro[1] = temp_gy;
+			LastGyro[2] = temp_gz;
+		} while ((ErrorGyro[0] > MAX_GYRO_QUIET) || (ErrorGyro[0] < MIN_GYRO_QUIET) || (ErrorGyro[1] > MAX_GYRO_QUIET) || (ErrorGyro[1] < MIN_GYRO_QUIET) || (ErrorGyro[2] > MAX_GYRO_QUIET) || (ErrorGyro[2] < MIN_GYRO_QUIET));
+	}
+	for (i = 0; i < 100; i++) //连续采样100次，一共耗时100*3=300ms
+	{
+		delay_ms(5);
+		res = MPU_Read_Len(MPU_ADDR, MPU_GYRO_XOUTH_REG, 6, buf);
+		if (res == 0)
+		{
+			temp_gx = ((u16)buf[0] << 8) | buf[1];
+			temp_gy = ((u16)buf[2] << 8) | buf[3];
+			temp_gz = ((u16)buf[4] << 8) | buf[5];
+		}
+		g_Gyro_xoffset += temp_gx;
+		g_Gyro_yoffset += temp_gy;
+		g_Gyro_zoffset += temp_gz;
+	}
+	MPU_GYRO.gyrox_offset = g_Gyro_xoffset / 100; //得到静态偏移值//采集了100组做平均
+	MPU_GYRO.gyroy_offset = g_Gyro_yoffset / 100;
+	MPU_GYRO.gyroz_offset = g_Gyro_zoffset / 100;
+	printf("gxoff:%d\tgyoff:%d\tgzoff:%d\n", MPU_GYRO.gyrox_offset, MPU_GYRO.gyroy_offset, MPU_GYRO.gyroz_offset);
+}
+void Acc_Calibartion(void)
+{
+}
+
+////////////////////////////////////
+//////////////变量区////////////////
+
+//定义加速度，陀螺仪的全局变量
+Struct_MPU_ACC MPU_ACC;
+Struct_MPU_GYRO MPU_GYRO;
+
+////////////////////////////////////

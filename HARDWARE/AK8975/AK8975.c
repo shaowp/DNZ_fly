@@ -1,5 +1,5 @@
 #include "AK8975.h"
-
+#include "data_process.h"
 int16_t MagOffset[3];
 
 #undef SUCCESS
@@ -36,26 +36,143 @@ int8_t AK8975_Init(void)
 	}
 	printf("AK8975 INIT SUCCESS\n");
 	MAG_Write_Byte(0x0A, 0x11); //0x10 16位模式  0x 01 单次测量模式		//14位 - 0.6uT/LSB      16位 - 0.15uT/LSB
-	delay_ms(10);				//延时等待磁力计可用
-	return 0;					//成功为0，返回0
+
+	AK8975_MAG.mx_offset = 0.0;
+	AK8975_MAG.my_offset = 0.0;
+	AK8975_MAG.mz_offset = 0.0;
+	AK8975_MAG.x_gain = 1.0;
+	AK8975_MAG.y_gain = 1.0;
+	AK8975_MAG.z_gain = 1.0;
+
+	AK8975_MAG.G_mx_offset = 0.00038320;
+	AK8975_MAG.G_my_offset = 0.25000572;
+	AK8975_MAG.G_mz_offset = 0.024472466;
+
+	AK8975_MAG.B0 = 0.971015848544786;
+	AK8975_MAG.B1 = 0.0284366992458222;
+	AK8975_MAG.B2 = -0.00992842090844834;
+	AK8975_MAG.B3 = 1.01041428496465;
+	AK8975_MAG.B4 = 0.00564846114600907;
+	AK8975_MAG.B5 = 1.02021190921112;
+	delay_ms(10); //延时等待磁力计可用
+	return 0;	 //成功为0，返回0
 }
 
 int8_t AK8975_Updata(void)
 {
-	short mx, my, mz;
+	float G_mx, G_my, G_mz;
+	short temp_mx, temp_my, temp_mz;
 	u8 buf[6], res;
 	res = MAG_Read_Len(MAG_ADDR, 0x03, 6, buf);
 	if (res == 0)
 	{
-		mx = (((u16)buf[0] << 8) | buf[1]);
-		mz = (((u16)buf[4] << 8) | buf[5]);
-		my = (((u16)buf[2] << 8) | buf[3]);
+		temp_mx = (((u16)buf[1] << 8) | buf[0]);
+		temp_my = (((u16)buf[3] << 8) | buf[2]);
+		temp_mz = (((u16)buf[5] << 8) | buf[4]);
+		// printf("%d\t %d\t %d\t", temp_mx, temp_my, temp_mz);
 	}
-	printf("%d\t%d\t%d\n", mx, my, mz);
+	//高斯数据的校准
+	G_mx = temp_mx / 341.0 - AK8975_MAG.G_mx_offset;
+	G_my = temp_my / 341.0 - AK8975_MAG.G_my_offset;
+	G_mz = temp_mz / 341.0 - AK8975_MAG.G_mz_offset;
+
+	// printf("%.2f\t %.2f\t %.2f\n", G_mx, G_my, G_mz);
+	AK8975_MAG.G_mx = AK8975_MAG.B0 * G_mx + AK8975_MAG.B1 * G_my + AK8975_MAG.B2 * G_mz;
+	AK8975_MAG.G_my = AK8975_MAG.B1 * G_mx + AK8975_MAG.B3 * G_my + AK8975_MAG.B4 * G_mz;
+	AK8975_MAG.G_mz = AK8975_MAG.B2 * G_mx + AK8975_MAG.B4 * G_my + AK8975_MAG.B5 * G_mz;
+
+	//数据放到磁力计主数据
+	AK8975_MAG.mx = -AK8975_MAG.G_mx * 341.0;	//特别注意方向，方向非常重要
+	AK8975_MAG.my = AK8975_MAG.G_my * 341.0;
+	AK8975_MAG.mz = AK8975_MAG.G_mz * 341.0;
+
+	// AK8975_MAG.mx = AK8975_MAG.x_gain * (temp_mx - AK8975_MAG.mx_offset);
+	// AK8975_MAG.my = AK8975_MAG.y_gain * (temp_my - AK8975_MAG.my_offset);
+	// AK8975_MAG.mz = AK8975_MAG.z_gain * (temp_mz - AK8975_MAG.mz_offset);
 
 	MAG_Write_Byte(0x0A, 0x11); //0x10 16位模式  0x 01 单次测量模式		//14位 - 0.6uT/LSB      16位 - 0.15uT/LSB
-
 	return 0;
+}
+
+//磁力计校准
+void Mag_Calibartion(void)
+{
+	short x_max = -32767;
+	short x_min = 32767;
+	short y_max = -32767;
+	short y_min = 32767;
+	short z_max = -32767;
+	short z_min = 32767;
+	// short x_max = 0;
+	// short x_min = 0;
+	// short y_max = 0;
+	// short y_min = 0;
+	// short z_max = 0;
+	// short z_min = 0;
+	short cal_cnt = 0; //需要校准的话改成2000或者更大
+
+	//第一次校准。板子水平放置，然后旋转
+	printf("first cal MAG\n");
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	for (cal_cnt = 0; cal_cnt <= 2000; cal_cnt++)
+	{
+		AK8975_Updata();
+		// MAG_IMU_Filter();
+		// printf("mx %.2f\tmy %.2f\tmz %.2f\n", AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz);
+		if (AK8975_MAG.mx >= x_max)
+			x_max = AK8975_MAG.mx;
+		if (AK8975_MAG.my >= y_max)
+			y_max = AK8975_MAG.my;
+		if (AK8975_MAG.mz >= z_max)
+			z_max = AK8975_MAG.mz;
+		if (AK8975_MAG.mx <= x_min)
+			x_min = AK8975_MAG.mx;
+		if (AK8975_MAG.my <= y_min)
+			y_min = AK8975_MAG.my;
+		if (AK8975_MAG.mz <= z_min)
+			z_min = AK8975_MAG.mz;
+		printf(". ");
+		delay_ms(10);
+	}
+	//第二次校准，机头朝上
+	///我猜的，我也不知道哪个朝上
+	printf("second cal MAG\n");
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	for (cal_cnt = 0; cal_cnt <= 2000; cal_cnt++)
+	{
+
+		AK8975_Updata();
+		// MAG_IMU_Filter();
+		// printf("mx %.2f\tmy %.2f\tmz %.2f\n", AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz);
+		if (AK8975_MAG.mx >= x_max)
+			x_max = AK8975_MAG.mx;
+		if (AK8975_MAG.my >= y_max)
+			y_max = AK8975_MAG.my;
+		if (AK8975_MAG.mz >= z_max)
+			z_max = AK8975_MAG.mz;
+		if (AK8975_MAG.mx <= x_min)
+			x_min = AK8975_MAG.mx;
+		if (AK8975_MAG.my <= y_min)
+			y_min = AK8975_MAG.my;
+		if (AK8975_MAG.mz <= z_min)
+			z_min = AK8975_MAG.mz;
+		printf(". ");
+		delay_ms(10);
+	}
+	printf("xmax:%d\tymax:%d\tzmax:%d\t", x_max, y_max, z_max);
+	printf("xmin:%d\tymin:%d\tzmin:%d\n", x_min, y_min, z_min);
+	AK8975_MAG.mx_offset = (x_min + x_max) / 2.0;
+	AK8975_MAG.my_offset = (y_min + y_max) / 2.0;
+	AK8975_MAG.mz_offset = (z_min + z_max) / 2.0;
+	AK8975_MAG.y_gain = 1.0 * (x_max - x_min) / (y_max - y_min);
+	AK8975_MAG.z_gain = 1.0 * (x_max - x_min) / (z_max - z_min);
+	printf("xo%.2f\t yo%.2f\t zo%.2f\t %.2f\t %.2f\n", AK8975_MAG.mx_offset, AK8975_MAG.my_offset, AK8975_MAG.mz_offset, AK8975_MAG.y_gain, AK8975_MAG.z_gain);
 }
 
 //IIC连续写
@@ -167,3 +284,9 @@ u8 MAG_Read_Byte(u8 reg)
 	SOFT_IIC_Stop();						 //产生一个停止条件
 	return res;
 }
+
+////////////////////////////////////
+//////////////变量区////////////////
+Struct_AK8975_MAG AK8975_MAG;
+
+////////////////////////////////////

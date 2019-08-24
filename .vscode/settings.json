@@ -2,6 +2,14 @@
 	"files.associations": {
 		"softiic.h": "c",
 		"sys.h": "c",
-		"stm32f10x.h": "c"
+		"stm32f10x.h": "c",
+		"mpu6050.h": "c",
+		"ak8975.h": "c",
+		"kalman.h": "c",
+		"data_process.h": "c",
+		"scheduler.h": "c",
+		"delay.h": "c",
+		"timer.h": "c",
+		"imu.h": "c"
 	}
 }

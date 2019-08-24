@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\SYSTEM;..\HARDWARE\AK8975;..\HARDWARE\MPU6050;..\HARDWARE\SOFT_IIC;..\HARDWARE\TIMER</IncludePath>
+              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\SYSTEM;..\HARDWARE\AK8975;..\HARDWARE\MPU6050;..\HARDWARE\SOFT_IIC;..\HARDWARE\TIMER;..\MATH;..\HAL;..\HARDWARE\INTERRUPT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -405,6 +405,16 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\SOFT_IIC\softiic.c</FilePath>
             </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\TIMER\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\INTERRUPT\interrupt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -434,6 +444,11 @@
               <FileName>system_stm32f10x.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\system_stm32f10x.c</FilePath>
+            </File>
+            <File>
+              <FileName>scheduler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\scheduler.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -489,6 +504,31 @@
               <FileName>README.TXT</FileName>
               <FileType>5</FileType>
               <FilePath>..\README.TXT</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>MATH</GroupName>
+          <Files>
+            <File>
+              <FileName>kalman.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MATH\kalman.c</FilePath>
+            </File>
+            <File>
+              <FileName>IMU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MATH\IMU.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HAL</GroupName>
+          <Files>
+            <File>
+              <FileName>data_process.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\data_process.c</FilePath>
             </File>
           </Files>
         </Group>
