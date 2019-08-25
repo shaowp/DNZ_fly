@@ -1,5 +1,5 @@
 #include "ANO_USART.h"
-
+#include "usbio.h"
 //数据拆分宏定义，在发送大于1字节的数据类型时，比如int16、float等，需要把数据拆分成单独字节进行发送
 #define BYTE0(dwTemp) (*((char *)(&dwTemp)))
 #define BYTE1(dwTemp) (*((char *)(&dwTemp) + 1))
@@ -153,7 +153,8 @@ void ANO_DT_Send_Senser(s16 a_x, s16 a_y, s16 a_z, s16 g_x, s16 g_y, s16 g_z, s1
 	for (i = 0; i < _cnt; i++)
 		sum += data_to_send[i];
 	data_to_send[_cnt++] = sum;
-
+	Usb_Hid_Adddata(data_to_send,_cnt);
+	Usb_Hid_Send();
 	usart1_send_str(data_to_send, _cnt);
 }
 
@@ -196,7 +197,8 @@ void ANO_DT_Send_RCData(u16 thr, u16 yaw, u16 rol, u16 pit, u16 aux1, u16 aux2, 
 		sum += data_to_send[i];
 
 	data_to_send[_cnt++] = sum;
-
+	Usb_Hid_Adddata(data_to_send,_cnt);
+	Usb_Hid_Send();
 	usart1_send_str(data_to_send, _cnt);
 }
 
@@ -240,7 +242,48 @@ void ANO_DT_Send_Status(float angle_rol, float angle_pit, float angle_yaw, s32 a
 	for (i = 0; i < _cnt; i++)
 		sum += data_to_send[i];
 	data_to_send[_cnt++] = sum;
+	Usb_Hid_Adddata(data_to_send,_cnt);
+	Usb_Hid_Send();
+	usart1_send_str(data_to_send, _cnt);
+}
 
+//发送电机输出
+void ANO_DT_Send_MotoPWM(u16 m_1, u16 m_2, u16 m_3, u16 m_4, u16 m_5, u16 m_6, u16 m_7, u16 m_8)
+{
+	u8 _cnt = 0;
+	u8 sum = 0;
+	u8 i;
+	u8 data_to_send[50]; //发送数据缓存
+	data_to_send[_cnt++] = 0xAA;
+	data_to_send[_cnt++] = 0xAA;
+	data_to_send[_cnt++] = 0x06;
+	data_to_send[_cnt++] = 0;
+
+	data_to_send[_cnt++] = BYTE1(m_1);
+	data_to_send[_cnt++] = BYTE0(m_1);
+	data_to_send[_cnt++] = BYTE1(m_2);
+	data_to_send[_cnt++] = BYTE0(m_2);
+	data_to_send[_cnt++] = BYTE1(m_3);
+	data_to_send[_cnt++] = BYTE0(m_3);
+	data_to_send[_cnt++] = BYTE1(m_4);
+	data_to_send[_cnt++] = BYTE0(m_4);
+	data_to_send[_cnt++] = BYTE1(m_5);
+	data_to_send[_cnt++] = BYTE0(m_5);
+	data_to_send[_cnt++] = BYTE1(m_6);
+	data_to_send[_cnt++] = BYTE0(m_6);
+	data_to_send[_cnt++] = BYTE1(m_7);
+	data_to_send[_cnt++] = BYTE0(m_7);
+	data_to_send[_cnt++] = BYTE1(m_8);
+	data_to_send[_cnt++] = BYTE0(m_8);
+
+	data_to_send[3] = _cnt - 4;
+
+	for (i = 0; i < _cnt; i++)
+		sum += data_to_send[i];
+
+	data_to_send[_cnt++] = sum;
+	Usb_Hid_Adddata(data_to_send,_cnt);
+	Usb_Hid_Send();
 	usart1_send_str(data_to_send, _cnt);
 }
 /********************** E N D ********************************/

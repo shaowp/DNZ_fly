@@ -41,3 +41,17 @@
 ..\obj\main.o: ..\MATH\IMU.h
 ..\obj\main.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\main.o: ..\HAL\ANO_USART.h
+..\obj\main.o: ..\HARDWARE\RC\rc_process.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_lib.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
+..\obj\main.o: ..\USB\CONFIG\usb_conf.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_regs.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_def.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_core.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_init.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_mem.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_int.h
+..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_sil.h
+..\obj\main.o: ..\USB\CONFIG\hw_config.h
+..\obj\main.o: ..\USB\CONFIG\usb_pwr.h
+..\obj\main.o: ..\USB\CONFIG\usbio.h

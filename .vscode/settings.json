@@ -12,6 +12,12 @@
 		"timer.h": "c",
 		"imu.h": "c",
 		"ano_usart.h": "c",
-		"usart.h": "c"
+		"usart.h": "c",
+		"rc_process.h": "c",
+		"usbio.h": "c",
+		"hw_config.h": "c",
+		"usb_pwr.h": "c",
+		"usb_desc.h": "c",
+		"usb_lib.h": "c"
 	}
 }

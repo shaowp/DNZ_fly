@@ -1,5 +1,4 @@
 ..\obj\stm32f10x_it.o: ..\SYSTEM\stm32f10x_it.c
-..\obj\stm32f10x_it.o: ..\SYSTEM\stm32f10x_it.h
 ..\obj\stm32f10x_it.o: ..\SYSTEM\stm32f10x.h
 ..\obj\stm32f10x_it.o: ..\CORE\core_cm3.h
 ..\obj\stm32f10x_it.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -29,3 +28,16 @@
 ..\obj\stm32f10x_it.o: ..\STM32F10x_FWLib\inc\stm32f10x_usart.h
 ..\obj\stm32f10x_it.o: ..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h
 ..\obj\stm32f10x_it.o: ..\STM32F10x_FWLib\inc\misc.h
+..\obj\stm32f10x_it.o: ..\SYSTEM\stm32f10x_it.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_lib.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
+..\obj\stm32f10x_it.o: ..\USB\CONFIG\usb_conf.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_regs.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_def.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_core.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_init.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_mem.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_int.h
+..\obj\stm32f10x_it.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_sil.h
+..\obj\stm32f10x_it.o: ..\USB\CONFIG\usb_istr.h
+..\obj\stm32f10x_it.o: ..\USB\CONFIG\usb_pwr.h
