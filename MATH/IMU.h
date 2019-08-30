@@ -29,8 +29,8 @@ typedef struct
 	float Sin_Pitch;
 	float Cos_Yaw;
 	float Sin_Yaw;
-} _st_IMU;
-extern _st_IMU IMU;
+} Struct_IMU;
+extern Struct_IMU IMU;
 
 
 #endif

@@ -18,6 +18,7 @@
 		"hw_config.h": "c",
 		"usb_pwr.h": "c",
 		"usb_desc.h": "c",
-		"usb_lib.h": "c"
+		"usb_lib.h": "c",
+		"stdint.h": "c"
 	}
 }

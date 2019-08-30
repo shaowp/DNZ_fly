@@ -9,15 +9,15 @@ float q0 = 1, q1 = 0, q2 = 0, q3 = 0;  // quaternion elements representing the e
 float exInt = 0, eyInt = 0, ezInt = 0; // scaled integral error
 
 //////////////////////////////
-//È«¾Ö±äÁ¿£¬´æ·Å×ËÌ¬µÄÊı¾İ
-_st_IMU IMU;
+//å…¨å±€å˜é‡ï¼Œå­˜æ”¾å§¿æ€çš„æ•°æ®
+Struct_IMU IMU;
 //////////////////////////////
 
-/**************************ÊµÏÖº¯Êı********************************************
-*º¯ÊıÔ­ĞÍ:	 float invSqrt(float x)
-*¹¦¡¡¡¡ÄÜ:	 ¿ìËÙ¼ÆËã 1/Sqrt(x) 	
-*ÊäÈë²ÎÊı£º  Òª¼ÆËãµÄÖµ
-*Êä³ö²ÎÊı£º  ½á¹û
+/**************************å®ç°å‡½æ•°********************************************
+*å‡½æ•°åŸå‹:	 float invSqrt(float x)
+*åŠŸã€€ã€€èƒ½:	 å¿«é€Ÿè®¡ç®— 1/Sqrt(x) 	
+*è¾“å…¥å‚æ•°ï¼š  è¦è®¡ç®—çš„å€¼
+*è¾“å‡ºå‚æ•°ï¼š  ç»“æœ
 *******************************************************************************/
 float Q_rsqrt(float number)
 {
@@ -34,7 +34,7 @@ float Q_rsqrt(float number)
 	return y;
 }
 
-//Çó¾ø¶ÔÖµº¯Êı
+//æ±‚ç»å¯¹å€¼å‡½æ•°
 float FL_ABS(float x)
 {
 	if (x < 0)
@@ -43,7 +43,22 @@ float FL_ABS(float x)
 		return x;
 }
 
-//ËÄÔªÊı¼ÆËãº¯Êı£¬ÏêÏ¸µÄ½âÊÍÇë²Î¿¼×ÊÁÏ°üÀïµÄ¡¶×ËÌ¬½âËãÀí½â¡·Ò»ÎÄ£¬½²µÄÍ¦ÏêÏ¸£¬Í¨Ë×Ò×¶®
+//æ¢¯åº¦ä¸‹é™æ³•
+typedef volatile struct
+{
+	float q0;
+	float q1;
+	float q2;
+	float q3;
+} Quaternion;
+Quaternion NumQ = {1.0f, 0.0f, 0.0f, 0.0f};
+
+float Yaw_Correct = 0;
+static const uint16_t Quad_Delay = 10; //5
+const uint8_t Quad_Num = Quad_Delay;
+//static float Quad_Buf[Quad_Num + 1][4] = {0}; //å»¶æ—¶å–ç¬¬10ç»„ä»¥åçš„å››å…ƒæ•°
+
+//å››å…ƒæ•°è®¡ç®—å‡½æ•°ï¼Œè¯¦ç»†çš„è§£é‡Šè¯·å‚è€ƒèµ„æ–™åŒ…é‡Œçš„ã€Šå§¿æ€è§£ç®—ç†è§£ã€‹ä¸€æ–‡ï¼Œè®²çš„æŒºè¯¦ç»†ï¼Œé€šä¿—æ˜“æ‡‚
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
 {
 	double angle_x, angle_y, angle_z;
@@ -52,7 +67,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	float vx, vy, vz, wx, wy, wz;
 	float ex, ey, ez;
 	//xo11.00	 yo-188.00	 zo4.00	 0.98	 1.07
-	//ÏÈ°ÑÕâĞ©ÓÃµÃµ½µÄÖµËãºÃ
+	//å…ˆæŠŠè¿™äº›ç”¨å¾—åˆ°çš„å€¼ç®—å¥½
 	float q0q0 = q0 * q0;
 	float q0q1 = q0 * q1;
 	float q0q2 = q0 * q2;
@@ -64,17 +79,20 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	float q2q3 = q2 * q3;
 	float q3q3 = q3 * q3;
 
-	//ÍÓÂİÒÇÊı¾İµ¥Î»µÄ×ª»¯
-	//´«½øÀ´µÄÊÇ+-2000¡ã/sµÄÊı¾İ£¬
-	//ĞèÒª×ª»¯³É»¡¶È
+	//é™€èºä»ªæ•°æ®å•ä½çš„è½¬åŒ–
+	//ä¼ è¿›æ¥çš„æ˜¯+-2000Â°/sçš„æ•°æ®ï¼Œ
+	//éœ€è¦è½¬åŒ–æˆå¼§åº¦
 	float yaw_G = gz * Gyro_G;
-	gx = gx / 32.765 * 0.0174532;
-	gy = gy / 32.765 * 0.0174532;
-	gz = gz / 32.765 * 0.0174532;
+
+	//2000Â°çš„é‡ç¨‹åº”è¯¥é€‰æ‹© 16.3825
+	//1000Â°çš„é‡ç¨‹åº”è¯¥é€‰æ‹© 32.765
+	gx = gx / 16.3825 * 0.0174532;
+	gy = gy / 16.3825 * 0.0174532;
+	gz = gz / 16.3825 * 0.0174532;
 
 	// printf("%.2f\t%.2f\t%.2f\n",gx,gy,gz);
 
-	//¼ÓËÙ¶È¹éÒ»»¯
+	//åŠ é€Ÿåº¦å½’ä¸€åŒ–
 	norm = Q_rsqrt(ax * ax + ay * ay + az * az);
 	ax = ax * norm;
 	ay = ay * norm;
@@ -87,81 +105,84 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 
 	// printf("mx%.2f\tmy%.2f\tmz%.2f\t",mx,my,mz);
 
-	//´ÅÁ¦¼ÆËã·¨
+	//ç£åŠ›è®¡ç®—æ³•
 	hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
 	hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
 	hz = 2.0f * mx * (q1q3 - q0q2) + 2.0f * my * (q2q3 + q0q1) + 2.0f * mz * (0.5f - q1q1 - q2q2);
 	bx = sqrt(hx * hx + hy * hy);
 	bz = hz;
 
-	//¼ÓËÙ¶ÈËã·¨
-	//vx¡¢vy¡¢vz£¬ÆäÊµ¾ÍÊÇµ±Ç°µÄ»úÌå×ø±ê²ÎÕÕÏµÉÏ£¬»»Ëã³öÀ´µÄÖØÁ¦µ¥Î»ÏòÁ¿¡£(ÓÃ±íÊ¾»úÌå×ËÌ¬µÄËÄÔªÊı½øĞĞ»»Ëã)
+	//åŠ é€Ÿåº¦ç®—æ³•
+	//vxã€vyã€vzï¼Œå…¶å®å°±æ˜¯å½“å‰çš„æœºä½“åæ ‡å‚ç…§ç³»ä¸Šï¼Œæ¢ç®—å‡ºæ¥çš„é‡åŠ›å•ä½å‘é‡ã€‚(ç”¨è¡¨ç¤ºæœºä½“å§¿æ€çš„å››å…ƒæ•°è¿›è¡Œæ¢ç®—)
 	// estimated direction of gravity and flux (v and w)
 	vx = 2 * (q1q3 - q0q2);
 	vy = 2 * (q0q1 + q2q3);
 	vz = q0q0 - q1q1 - q2q2 + q3q3;
 	// printf("%.2f\t%.2f\t%.2f\n", vx, vy, vz);
 
-	//´ÅÁ¦¼ÆËã·¨
+	//ç£åŠ›è®¡ç®—æ³•
 	wx = 2 * bx * (0.5f - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2);
 	wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3);
 	wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5f - q1q1 - q2q2);
 
-	// ¼ÓËÙ¶È£¬´ÅÁ¦¼ÆÈÚºÏ
+	// åŠ é€Ÿåº¦ï¼Œç£åŠ›è®¡èåˆ
 	// error is sum of cross product between reference direction of fields and direction measured by sensors
 	ex = (ay * vz - az * vy) + (my * wz - mz * wy);
 	ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
 	ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
 
-	// µ¥¶À¼ÓËÙ¶È£¬²»´ø´ÅÁ¦¼Æ
+	// å•ç‹¬åŠ é€Ÿåº¦ï¼Œä¸å¸¦ç£åŠ›è®¡
 	// ex = (ay * vz - az * vy);
 	// ey = (az * vx - ax * vz);
 	// ez = (ax * vy - ay * vx);
 
 	if (ex != 0.0f && ey != 0.0f && ez != 0.0f)
 	{
-		exInt = exInt + ex * Ki;
-		eyInt = eyInt + ey * Ki;
-		ezInt = ezInt + ez * Ki;
+		exInt += 0.005 * ex * Ki;
+		eyInt += 0.005 * ey * Ki;
+		ezInt += 0.005 * ez * Ki;
 	}
+	gx = gx + Kp * ex + exInt;
+	gy = gy + Kp * ey + eyInt;
+	gz = gz + Kp * ez + ezInt;
 
 	// // adjusted gyroscope measurements
-	if (FL_ABS(ay) < 0.9 && FL_ABS(az - 1) < 0.9)
-	{
-		gx = gx + Kp * ex + exInt;
-	}
-	else
-	{
-		gx = gx;
-	}
-	if (FL_ABS(ax) < 0.9 && FL_ABS(az - 1) < 0.9)
-	{
-		gy = gy + Kp * ey + eyInt;
-	}
-	else
-	{
-		gy = gy;
-	}
-	if (FL_ABS(ax) < 0.9 && FL_ABS(ay) < 0.9)
-	{
-		gz = gz + Kp * ez + ezInt;
-	}
-	else
-	{
-		gz = gz;
-	}
+	// if (FL_ABS(ay) < 0.9 && FL_ABS(az - 1) < 0.9)
+	// {
+	// 	gx = gx + Kp * ex + exInt;
+	// }
+	// else
+	// {
+	// 	gx = gx;
+	// }
+	// if (FL_ABS(ax) < 0.9 && FL_ABS(az - 1) < 0.9)
+	// {
+	// 	gy = gy + Kp * ey + eyInt;
+	// }
+	// else
+	// {
+	// 	gy = gy;
+	// }
+	// if (FL_ABS(ax) < 0.9 && FL_ABS(ay) < 0.9)
+	// {
+	// 	gz = gz + Kp * ez + ezInt;
+	// }
+	// else
+	// {
+	// 	gz = gz;
+	// }
 
 	//gz = gz + Kp*ez + ezInt;
 
 	// integrate quaternion rate and normalise
-	//Ò»½×Áú¸ñ¡ª¿âËş·¨½âËÄÔªÊıÎ¢·Ö·½³Ì¡£
+	//ä¸€é˜¶é¾™æ ¼â€”åº“å¡”æ³•è§£å››å…ƒæ•°å¾®åˆ†æ–¹ç¨‹ã€‚
 	q0 = q0 + (-q1 * gx - q2 * gy - q3 * gz) * halfT;
 	q1 = q1 + (q0 * gx + q2 * gz - q3 * gy) * halfT;
 	q2 = q2 + (q0 * gy - q1 * gz + q3 * gx) * halfT;
 	q3 = q3 + (q0 * gz + q1 * gy - q2 * gx) * halfT;
 
 	// normalise quaternion
-	//ËÄÔªÊı¹éÒ»»¯
+	//å››å…ƒæ•°å½’ä¸€åŒ–
 	norm = Q_rsqrt(q0q0 + q1q1 + q2q2 + q3q3);
 	q0 = q0 * norm;
 	q1 = q1 * norm;
@@ -170,24 +191,24 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 
 	angle_x = atan2(2 * q2q3 + 2 * q0q1, -2 * q1q1 - 2 * q2q2 + 1); // roll
 	angle_y = asin(-2 * q1q3 + 2 * q0q2);							// pitch
-	angle_z = atan2(2 * q1q2 + 2 * q0q3, 1 - 2 * q2q2 - 2 * q3q3);  //yaw
+	angle_z = atan2(2 * q1q2 + 2 * q0q3, 1 - 2 * q2q2 - 2 * q3q3);  //y aw
 
 	angle_x *= RtA;
 	angle_y *= RtA;
 	angle_z *= RtA;
-	///Ô­À´µÄ£¬Ã»¿¼ÂÇ·½ÏòĞÔ
-	//ºÃÏñ´ÅÁ¦¼ÆµÄ·½ÏòÊÇ¶ÔµÄ£¬µ«ÊÇ6050µÄ·½ÏòºÃÏñ·´ÁË
+	///åŸæ¥çš„ï¼Œæ²¡è€ƒè™‘æ–¹å‘æ€§
+	//å¥½åƒç£åŠ›è®¡çš„æ–¹å‘æ˜¯å¯¹çš„ï¼Œä½†æ˜¯6050çš„æ–¹å‘å¥½åƒåäº†
 	// IMU.roll = angle_x;
 	// IMU.pitch = angle_y;
-	// IMU.yaw_mag = angle_z; //´ÅÁ¦¼ÆÈÚºÏ³öÀ´µÄÊı¾İ
+	// IMU.yaw_mag = angle_z; //ç£åŠ›è®¡èåˆå‡ºæ¥çš„æ•°æ®
 
-	//¿¼ÂÇµ½·½ÏòĞÔ
+	//è€ƒè™‘åˆ°æ–¹å‘æ€§
 	IMU.roll = angle_x;
-	IMU.pitch = -angle_y;
-	IMU.yaw_mag = angle_z; //´ÅÁ¦¼ÆÈÚºÏ³öÀ´µÄÊı¾İ
+	IMU.pitch = angle_y;
+	IMU.yaw_mag = angle_z; //ç£åŠ›è®¡èåˆå‡ºæ¥çš„æ•°æ®
 
-	/*Æ«º½½ÇÒ»½×»¥²¹*/
-	if ((yaw_G > 2.0f) || (yaw_G < -2.0f)) //Êı¾İÌ«Ğ¡¿ÉÒÔÈÏÎªÊÇ¸ÉÈÅ£¬²»ÊÇÆ«º½¶¯×÷
+	/*åèˆªè§’ä¸€é˜¶äº’è¡¥*/
+	if ((yaw_G > 2.0f) || (yaw_G < -2.0f)) //æ•°æ®å¤ªå°å¯ä»¥è®¤ä¸ºæ˜¯å¹²æ‰°ï¼Œä¸æ˜¯åèˆªåŠ¨ä½œ
 	{
 		IMU.yaw += gz * Gyro_G * 0.005;
 	}
@@ -196,8 +217,8 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	else
 		IMU.yaw = IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
 
-	//***************Ö÷ÒªÊÇÎªÁË¼ÆËãÆ«º½½Ç£¬µ«ÊÇÃ»ÓÃµ½£¬½ÚÊ¡¼ÆËãÁ¿*****************/
-	//ÇãĞ±½Ç¶ÈµÄÈı½Çº¯ÊıÖµ
+	//***************ä¸»è¦æ˜¯ä¸ºäº†è®¡ç®—åèˆªè§’ï¼Œä½†æ˜¯æ²¡ç”¨åˆ°ï¼ŒèŠ‚çœè®¡ç®—é‡*****************/
+	//å€¾æ–œè§’åº¦çš„ä¸‰è§’å‡½æ•°å€¼
 	// IMU.Cos_Pitch = cos(IMU.pitch * AtR);
 	// IMU.Sin_Pitch = sin(IMU.pitch * AtR);
 	// IMU.Cos_Roll = cos(IMU.roll * AtR);
@@ -205,3 +226,83 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	// IMU.Cos_Yaw = cos(IMU.yaw * AtR);
 	// IMU.Sin_Yaw = sin(IMU.yaw * AtR);
 }
+
+// void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, float ay, float az)
+// {
+// 	float recipNorm;				  // å¹³æ–¹æ ¹
+// 	float s0, s1, s2, s3;			  // æ¢¯åº¦ä¸‹é™ç®—å­æ±‚å‡ºæ¥çš„å§¿æ€
+// 	float qDot1, qDot2, qDot3, qDot4; // å››å…ƒæ•°å¾®åˆ†æ–¹ç¨‹æ±‚å¾—çš„å§¿æ€
+// 	float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2, _8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
+// 	float delta;
+// 	float tempx, tempy, tempz;
+// 	u8 i = 0;
+// 	for (i = Quad_Num; i > 0; i--) //å°†å››å…ƒæ•°å†å²å€¼ä¿å­˜èµ·æ¥
+// 	{
+// 		Quad_Buf[i][0] = Quad_Buf[i - 1][0];
+// 		Quad_Buf[i][1] = Quad_Buf[i - 1][1];
+// 		Quad_Buf[i][2] = Quad_Buf[i - 1][2];
+// 		Quad_Buf[i][3] = Quad_Buf[i - 1][3];
+// 	}
+// 	Quad_Buf[0][0] = NumQ.q0;
+// 	Quad_Buf[0][1] = NumQ.q1;
+// 	Quad_Buf[0][2] = NumQ.q2;
+// 	Quad_Buf[0][3] = NumQ.q3;
+
+// 	tempx = gx / 16.3825 * 0.0174532;
+// 	tempy = gy / 16.3825 * 0.0174532;
+// 	tempz = gz / 16.3825 * 0.0174532;
+
+// 	/* å››å…ƒæ•°å¾®åˆ†æ–¹ç¨‹è®¡ç®—æœ¬æ¬¡å¾…çŸ«æ­£å››å…ƒæ•° */
+// 	qDot1 = 0.5f * (-Quad_Buf[Quad_Delay][1] * tempx - Quad_Buf[Quad_Delay][2] * tempy - Quad_Buf[Quad_Delay][3] * tempz);
+// 	qDot2 = 0.5f * (Quad_Buf[Quad_Delay][0] * tempx + Quad_Buf[Quad_Delay][2] * tempz - Quad_Buf[Quad_Delay][3] * tempy);
+// 	qDot3 = 0.5f * (Quad_Buf[Quad_Delay][0] * tempy - Quad_Buf[Quad_Delay][1] * tempz + Quad_Buf[Quad_Delay][3] * tempx);
+// 	qDot4 = 0.5f * (Quad_Buf[Quad_Delay][0] * tempz + Quad_Buf[Quad_Delay][1] * tempy - Quad_Buf[Quad_Delay][2] * tempx);
+
+// 	/* åŠ é€Ÿåº¦è®¡è¾“å‡ºæœ‰æ•ˆæ—¶,åˆ©ç”¨åŠ é€Ÿåº¦è®¡è¡¥å¿é™€èºä»ª */
+// 	if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)))
+// 	{
+// 		recipNorm = Q_rsqrt(ax * ax + ay * ay + az * az);
+// 		ax *= recipNorm;
+// 		ay *= recipNorm;
+// 		az *= recipNorm;
+// 		/* é¿å…é‡å¤è¿ç®— */
+// 		_2q0 = 2.0f * NumQ.q0;
+// 		_2q1 = 2.0f * NumQ.q1;
+// 		_2q2 = 2.0f * NumQ.q2;
+// 		_2q3 = 2.0f * NumQ.q3;
+// 		_4q0 = 4.0f * NumQ.q0;
+// 		_4q1 = 4.0f * NumQ.q1;
+// 		_4q2 = 4.0f * NumQ.q2;
+// 		_8q1 = 8.0f * NumQ.q1;
+// 		_8q2 = 8.0f * NumQ.q2;
+// 		q0q0 = NumQ.q0 * NumQ.q0;
+// 		q1q1 = NumQ.q1 * NumQ.q1;
+// 		q2q2 = NumQ.q2 * NumQ.q2;
+// 		q3q3 = NumQ.q3 * NumQ.q3;
+
+// 		/* æ¢¯åº¦ä¸‹é™ç®—æ³•,è®¡ç®—è¯¯å·®å‡½æ•°çš„æ¢¯åº¦ */
+// 		s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;
+// 		s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * NumQ.q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
+// 		s2 = 4.0f * q0q0 * NumQ.q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
+// 		s3 = 4.0f * q1q1 * NumQ.q3 - _2q1 * ax + 4.0f * q2q2 * NumQ.q3 - _2q2 * ay;
+
+// 		/* æ¢¯åº¦å½’ä¸€åŒ– */
+// 		recipNorm = Q_rsqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);
+// 		s0 *= recipNorm;
+// 		s1 *= recipNorm;
+// 		s2 *= recipNorm;
+// 		s3 *= recipNorm;
+// 		{																  //å¿«é€Ÿè¡¥å¿å§¿æ€ï¼Œæ ¹æ®é£è¡Œå™¨å˜åŒ–é£è¡Œè§’åº¦çš„å¹…åº¦
+// 			const float Beta_Adjust[5] = {0.03, 0.03, 0.025, 0.02, 0.01}; //{0.04,0.03,0.025,0.02,0.01};//æ ¹æ®åŠ é€Ÿåº¦æ¨¡é•¿çš„å˜åŒ–è°ƒæ•´
+// 			float BETADEF = 0.04f;
+// 			float Tmep_Acce_Length;
+// 			Tmep_Acce_Length = LIMIT(Attitude.Acceleration_Length, 0, 1000); //æ­£å¸¸æ‚¬åœåœ¨500ä»¥å†… //é™å¹…
+// 			BETADEF = Beta_Adjust[0] - 0.01f * Tmep_Acce_Length / 1000.0f;   //åŠ¨æ€æ­¥é•¿
+// 			qDot1 -= BETADEF * s0;
+// 			qDot2 -= BETADEF * s1;
+// 			qDot3 -= BETADEF * s2;
+// 			qDot4 -= BETADEF * s3;
+// 		}
+// 	}
+
+// }

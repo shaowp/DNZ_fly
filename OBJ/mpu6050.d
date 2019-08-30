@@ -34,3 +34,7 @@
 ..\obj\mpu6050.o: ..\SYSTEM\delay\delay.h
 ..\obj\mpu6050.o: ..\SYSTEM\usart\usart.h
 ..\obj\mpu6050.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\mpu6050.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\mpu6050.o: ..\HAL\data_process.h
+..\obj\mpu6050.o: ..\MATH\kalman.h
+..\obj\mpu6050.o: ..\HARDWARE\AK8975\AK8975.h

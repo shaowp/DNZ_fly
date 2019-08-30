@@ -36,4 +36,5 @@
 ..\obj\data_process.o: ..\SYSTEM\delay\delay.h
 ..\obj\data_process.o: ..\SYSTEM\usart\usart.h
 ..\obj\data_process.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\data_process.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\data_process.o: ..\HARDWARE\AK8975\AK8975.h

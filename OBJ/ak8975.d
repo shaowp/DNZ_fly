@@ -37,3 +37,4 @@
 ..\obj\ak8975.o: ..\HAL\data_process.h
 ..\obj\ak8975.o: ..\MATH\kalman.h
 ..\obj\ak8975.o: ..\HARDWARE\MPU6050\mpu6050.h
+..\obj\ak8975.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h

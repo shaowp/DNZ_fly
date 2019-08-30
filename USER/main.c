@@ -17,6 +17,12 @@
 /************************************************
 DNZ_fly飞控程序 v0.1 @shaowp
 main program
+中断优先级列表（数字越小，优先级越高）
+名称				主优先级			次优先级
+TIM1（主中断）			2					0
+TIM4（遥控器）			1					1
+串口调参				0					2
+
 ************************************************/
 
 int main(void)
@@ -24,7 +30,7 @@ int main(void)
 	Set_System();									//系统时钟初始化
 	delay_init();									//延时函数初始化
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); //设置NVIC中断分组2:2位抢占优先级，2位响应优先级
-	uart_init(500000);								//串口初始化为115200
+	uart_init(115200);								//串口初始化为115200 500000
 	SOFT_IIC_Init();								//初始化软件IIC
 	MPU_Init();
 	AK8975_Init();
@@ -40,12 +46,15 @@ int main(void)
 	USB_Interrupts_Config();
 	Set_USBClock();
 	USB_Init();
-
-	// Mag_Calibartion();	//校准使用上位机ANTMAG校准，吧数据导出来为txt校准
-
-	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM3中断,允许更新中断
-	//	Gyro_Calibartion();
-
+	// Accel_six_Calibartion();
+	// Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
+	// Gyro_Calibartion(); //磁力计校准
+	// uart_init(500000);
+	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
+	
+	
+	//下面就没有延时了，开启滴答定时器作为系统运行时间标志
+	// SysTick->CTRL|=0x03;//打开中断开关
 	while (1)
 	{
 		//发送传感器数据
@@ -57,6 +66,7 @@ int main(void)
 
 		//发送遥控器数据
 		ANO_DT_Send_RCData(RC_data.thr, RC_data.yaw, RC_data.rol, RC_data.pit, 0, 0, 0, 0, 0, 0);
+		
 		// ANO_DT_Send_MotoPWM(1500, 0, 0, 0, 0, 0, 0, 0);
 	}
 }

@@ -8,6 +8,7 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 	short gx, gy, gz; //空变量
 	if (TIM_GetITStatus(TIM1, TIM_IT_Update) != RESET)
 	{
+		// printf("GetTicks:%d\n",GetTicks());
 		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 		count++;
 
@@ -16,9 +17,9 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 		MPU_Get_Gyroscope(&gx, &gy, &gz);
 		MPU_Get_Accelerometer(&gx, &gy, &gz);
 		GYRO_IMU_Filter();
-		ACC_IMU_Filter();
+		// ACC_IMU_Filter();
 		//姿态解算
-		IMUupdate(MPU_GYRO.gyrox, MPU_GYRO.gyroy, MPU_GYRO.gyroz,
+		IMUupdate(MPU_GYRO.gyrox*1.0, MPU_GYRO.gyroy*1.0, MPU_GYRO.gyroz*1.0,
 				  MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
 				  AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz);
 

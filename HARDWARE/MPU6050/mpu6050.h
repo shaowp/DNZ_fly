@@ -4,6 +4,8 @@
 #include "sys.h"
 #include "delay.h"
 #include "usart.h"
+#include "math.h"
+
 //#define MPU_ACCEL_OFFS_REG		0X06	//accel_offs寄存器,可读取版本号,寄存器手册未提到
 //#define MPU_PROD_ID_REG			0X0C	//prod id寄存器,在寄存器手册未提到
 #define MPU_SELF_TESTX_REG 0X0D   //自检寄存器X
@@ -99,6 +101,7 @@ u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az);
 
 void Gyro_Calibartion(void);
 void Acc_Calibartion(void);
+void Accel_six_Calibartion(void);
 
 ////////////////////////////////////
 //////////////变量区////////////////
@@ -107,12 +110,15 @@ void Acc_Calibartion(void);
 
 typedef struct mpu_acc_data
 {
-	short accx;
-	short accy;
-	short accz;
+	float accx;
+	float accy;
+	float accz;
 	short accx_offset;
 	short accy_offset;
 	short accz_offset;
+	float faccx;
+	float faccy;
+	float faccz;
 } Struct_MPU_ACC;
 
 typedef struct mpu_gyro_data

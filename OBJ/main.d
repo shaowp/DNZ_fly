@@ -34,12 +34,12 @@
 ..\obj\main.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\main.o: ..\HARDWARE\SOFT_IIC\softiic.h
 ..\obj\main.o: ..\HARDWARE\MPU6050\mpu6050.h
+..\obj\main.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\main.o: ..\HARDWARE\AK8975\AK8975.h
 ..\obj\main.o: ..\HAL\data_process.h
 ..\obj\main.o: ..\MATH\kalman.h
 ..\obj\main.o: ..\HARDWARE\TIMER\timer.h
 ..\obj\main.o: ..\MATH\IMU.h
-..\obj\main.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\main.o: ..\HAL\ANO_USART.h
 ..\obj\main.o: ..\HARDWARE\RC\rc_process.h
 ..\obj\main.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_lib.h

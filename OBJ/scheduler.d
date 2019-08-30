@@ -36,8 +36,8 @@
 ..\obj\scheduler.o: ..\HARDWARE\SOFT_IIC\softiic.h
 ..\obj\scheduler.o: ..\SYSTEM\delay\delay.h
 ..\obj\scheduler.o: ..\HARDWARE\MPU6050\mpu6050.h
+..\obj\scheduler.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\scheduler.o: ..\HAL\data_process.h
 ..\obj\scheduler.o: ..\MATH\kalman.h
 ..\obj\scheduler.o: ..\MATH\IMU.h
-..\obj\scheduler.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\scheduler.o: ..\HAL\ANO_USART.h
