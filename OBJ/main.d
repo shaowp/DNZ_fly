@@ -55,3 +55,5 @@
 ..\obj\main.o: ..\USB\CONFIG\hw_config.h
 ..\obj\main.o: ..\USB\CONFIG\usb_pwr.h
 ..\obj\main.o: ..\USB\CONFIG\usbio.h
+..\obj\main.o: ..\HAL\control.h
+..\obj\main.o: ..\HAL\pid.h

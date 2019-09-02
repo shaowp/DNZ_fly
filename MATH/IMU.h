@@ -1,16 +1,16 @@
 #ifndef __IMU_H
-#define	__IMU_H
-#include  <stdint.h>
+#define __IMU_H
+#include <stdint.h>
 #include "mpu6050.h"
 #include <math.h>
-#define RtA 		57.324841				
-#define AtR    	0.0174533				
-#define Acc_G 	0.0011963				
-#define Gyro_G 	0.03051756				
-#define Gyro_Gr	0.0005326
+#define RtA 57.324841
+#define AtR 0.0174533
+#define Acc_G 0.0011963
+#define Gyro_G 0.03051756
+#define Gyro_Gr 0.0005326
 
 #define FILTER_ACC_NUM 10
- 
+
 float Q_rsqrt(float number);
 void Collect_Data(void);
 void Get_Attitude(void);
@@ -31,19 +31,6 @@ typedef struct
 	float Sin_Yaw;
 } Struct_IMU;
 extern Struct_IMU IMU;
-
+extern float yaw_control;
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

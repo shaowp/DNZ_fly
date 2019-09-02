@@ -7,6 +7,7 @@
 
 float q0 = 1, q1 = 0, q2 = 0, q3 = 0;  // quaternion elements representing the estimated orientation
 float exInt = 0, eyInt = 0, ezInt = 0; // scaled integral error
+float yaw_control;
 
 //////////////////////////////
 //全局变量，存放姿态的数据
@@ -216,6 +217,11 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 		IMU.yaw = -IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
 	else
 		IMU.yaw = IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
+
+	if (IMU.yaw < 0)
+		yaw_control = IMU.yaw + 360; //如果小于0，则+360
+	else
+		yaw_control = IMU.yaw;
 
 	//***************主要是为了计算偏航角，但是没用到，节省计算量*****************/
 	//倾斜角度的三角函数值

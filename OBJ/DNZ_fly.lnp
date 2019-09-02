@@ -25,6 +25,8 @@
 "..\obj\data_process.o"
 "..\obj\ano_usart.o"
 "..\obj\scheduler.o"
+"..\obj\control.o"
+"..\obj\pid.o"
 "..\obj\hw_config.o"
 "..\obj\usb_desc.o"
 "..\obj\usb_endp.o"

@@ -14,6 +14,8 @@
 #include "hw_config.h"
 #include "usb_pwr.h"
 #include "usbio.h"
+#include "control.h"
+#include "pid.h"
 /************************************************
 DNZ_fly飞控程序 v0.1 @shaowp
 main program
@@ -46,15 +48,14 @@ int main(void)
 	USB_Interrupts_Config();
 	Set_USBClock();
 	USB_Init();
+	BLDC_calibration();//电调校准
+	PID_Init();//PID参数初始化
 	// Accel_six_Calibartion();
 	// Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
 	// Gyro_Calibartion(); //磁力计校准
 	// uart_init(500000);
 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
 	
-	
-	//下面就没有延时了，开启滴答定时器作为系统运行时间标志
-	// SysTick->CTRL|=0x03;//打开中断开关
 	while (1)
 	{
 		//发送传感器数据
@@ -67,6 +68,7 @@ int main(void)
 		//发送遥控器数据
 		ANO_DT_Send_RCData(RC_data.thr, RC_data.yaw, RC_data.rol, RC_data.pit, 0, 0, 0, 0, 0, 0);
 		
-		// ANO_DT_Send_MotoPWM(1500, 0, 0, 0, 0, 0, 0, 0);
+		//发送电机数据
+		ANO_DT_Send_MotoPWM(1500, 1500, 1500, 1500, 0, 0, 0, 0);
 	}
 }

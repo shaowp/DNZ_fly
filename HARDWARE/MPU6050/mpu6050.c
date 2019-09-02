@@ -31,7 +31,7 @@ u8 MPU_Init(void)
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); //唤醒MPU6050
 	MPU_Set_Gyro_Fsr(3);					 //陀螺仪传感器,±1000dps///参数为3的话为±2000
 	MPU_Set_Accel_Fsr(0);					 //加速度传感器,±2g
-	MPU_Set_Rate(50);						 //设置采样率50Hz
+	MPU_Set_Rate(300);						 //设置采样率300Hz
 	MPU_Write_Byte(MPU_INT_EN_REG, 0X00);	//关闭所有中断
 	MPU_Write_Byte(MPU_USER_CTRL_REG, 0X00); //I2C主模式关闭
 	MPU_Write_Byte(MPU_FIFO_EN_REG, 0X00);   //关闭FIFO
@@ -41,7 +41,7 @@ u8 MPU_Init(void)
 	{
 		MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X01); //设置CLKSEL,PLL X轴为参考
 		MPU_Write_Byte(MPU_PWR_MGMT2_REG, 0X00); //加速度与陀螺仪都工作
-		MPU_Set_Rate(300);						 //设置采样率为600Hz
+		MPU_Set_Rate(300);						 //设置采样率为300Hz
 		printf("MPU INIT SUCCESS\n");
 	}
 	else

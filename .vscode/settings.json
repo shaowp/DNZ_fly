@@ -19,6 +19,10 @@
 		"usb_pwr.h": "c",
 		"usb_desc.h": "c",
 		"usb_lib.h": "c",
-		"stdint.h": "c"
+		"stdint.h": "c",
+		"control.h": "c",
+		"random": "c",
+		"limits": "c",
+		"pid.h": "c"
 	}
 }

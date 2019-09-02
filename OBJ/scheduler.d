@@ -41,3 +41,4 @@
 ..\obj\scheduler.o: ..\MATH\kalman.h
 ..\obj\scheduler.o: ..\MATH\IMU.h
 ..\obj\scheduler.o: ..\HAL\ANO_USART.h
+..\obj\scheduler.o: ..\HAL\control.h

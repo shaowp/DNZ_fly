@@ -1,5 +1,5 @@
 #include "scheduler.h"
-
+#include "control.h"
 //定时器1的定时任务
 //核心处理函数
 void TIM1_UP_IRQHandler(void) //TIM3中断
@@ -17,11 +17,7 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 		MPU_Get_Gyroscope(&gx, &gy, &gz);
 		MPU_Get_Accelerometer(&gx, &gy, &gz);
 		GYRO_IMU_Filter();
-		// ACC_IMU_Filter();
-		//姿态解算
-		IMUupdate(MPU_GYRO.gyrox*1.0, MPU_GYRO.gyroy*1.0, MPU_GYRO.gyroz*1.0,
-				  MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
-				  AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz);
+		ACC_IMU_Filter();
 
 		//15ms的任务
 		//更新磁力计
@@ -43,14 +39,15 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 		//50ms任务，发送数据到上位机
 		if (count % 10 == 0)
 		{
-			//500000波特率到匿名上位机
-			// usart1_report_imu(MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
-			// 				  MPU_GYRO.gyrox, MPU_GYRO.gyroy, MPU_GYRO.gyroz,
-			// 				  (int)(IMU.roll * 100), (int)(IMU.pitch * 100), (int)(IMU.yaw * 10));
-			//115200波特率到串口助手
-			// printf("roll:%.2f\tpitch:%.2f\tyaw:%.2f\t \n", IMU.roll, IMU.pitch, IMU.yaw);
 		}
 		if (count == 120) //5ms,10ms,15ms,20ms都在这个120里面了
 			count = 0;
+
+		//姿态解算
+		IMUupdate(MPU_GYRO.gyrox * 1.0, MPU_GYRO.gyroy * 1.0, MPU_GYRO.gyroz * 1.0,
+				  MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
+				  AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz);
+		AttitudePidControl(); //姿态PID控制
+		MotorControl();		  //电机输出
 	}
 }
