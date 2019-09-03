@@ -19,6 +19,7 @@
 #define _USBIO_H_
 
 extern u8 Hid_RxData[64];
+// extern uint8_t USB_Received_Flag;
 
 void USB_HID_Init(void);
 void Usb_Hid_Adddata(u8 *dataToSend, u8 length);

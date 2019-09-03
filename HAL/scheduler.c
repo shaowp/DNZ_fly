@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include "control.h"
+#include "pid.h"
 //定时器1的定时任务
 //核心处理函数
 void TIM1_UP_IRQHandler(void) //TIM3中断
@@ -40,7 +41,14 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 		if (count % 10 == 0)
 		{
 		}
-		if (count == 120) //5ms,10ms,15ms,20ms都在这个120里面了
+		//10s的任务，发送PID数据
+		if (count % 2000 == 0)
+		{
+			//发送PID数据
+			//初始化将数据发出去
+			
+		}
+		if (count == 2000) //5ms,10ms,15ms,20ms都在这个120里面了
 			count = 0;
 
 		//姿态解算

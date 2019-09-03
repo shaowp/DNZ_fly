@@ -1,5 +1,6 @@
 ..\obj\usb_mem.o: ..\USB\STM32_USB-FS-Device_Driver\src\usb_mem.c
-..\obj\usb_mem.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_lib.h
+..\obj\usb_mem.o: ..\HAL\pid.h
+..\obj\usb_mem.o: ..\SYSTEM\sys\sys.h
 ..\obj\usb_mem.o: ..\SYSTEM\stm32f10x.h
 ..\obj\usb_mem.o: ..\CORE\core_cm3.h
 ..\obj\usb_mem.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -29,6 +30,11 @@
 ..\obj\usb_mem.o: ..\STM32F10x_FWLib\inc\stm32f10x_usart.h
 ..\obj\usb_mem.o: ..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h
 ..\obj\usb_mem.o: ..\STM32F10x_FWLib\inc\misc.h
+..\obj\usb_mem.o: ..\HAL\ANO_USART.h
+..\obj\usb_mem.o: ..\SYSTEM\delay\delay.h
+..\obj\usb_mem.o: ..\SYSTEM\usart\usart.h
+..\obj\usb_mem.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\usb_mem.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_lib.h
 ..\obj\usb_mem.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
 ..\obj\usb_mem.o: ..\USB\CONFIG\usb_conf.h
 ..\obj\usb_mem.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_regs.h

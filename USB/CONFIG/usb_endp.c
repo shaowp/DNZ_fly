@@ -19,6 +19,8 @@
 #include "usb_lib.h"
 #include "usb_istr.h"
 #include "usb_desc.h"
+#include "ANO_USART.h"
+#include "usbio.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -27,7 +29,7 @@
 /* Private variables ---------------------------------------------------------*/
 uint8_t USB_Receive_Buffer[REPORT_COUNT];
 uint8_t USB_Send_Buffer[REPORT_COUNT];
-volatile uint8_t USB_Received_Flag=0;
+volatile uint8_t USB_Received_Flag = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -40,7 +42,6 @@ volatile uint8_t USB_Received_Flag=0;
 *******************************************************************************/
 void EP1_IN_Callback(void)
 {
-
 }
 /*******************************************************************************
 * Function Name  : EP1_OUT_Callback.
@@ -49,16 +50,34 @@ void EP1_IN_Callback(void)
 * Output         : None.
 * Return         : None.
 *******************************************************************************/
+uint8_t data[64];
+uint32_t i = 0, ret = 0;
 void EP1_OUT_Callback(void)
 {
-	#ifndef STM32F10X_CL
+
+#ifndef STM32F10X_CL
 	PMAToUserBufferCopy(USB_Receive_Buffer, ENDP1_RXADDR, REPORT_COUNT);
-  	SetEPRxStatus(ENDP1, EP_RX_VALID);
- 	USB_Received_Flag=1;
-	#else
-	USB_SIL_Read(EP1_OUT,USB_Receive_Buffer);
-	USB_Received_Flag=1;
-	#endif
+	SetEPRxStatus(ENDP1, EP_RX_VALID);
+	USB_Received_Flag = 1;
+
+
+	/**************************************************************************/
+	//fuck_USB_REC
+	//USB中断接收
+	ret = USB_GetData(data, sizeof(data));
+	// printf("usb get data %d byte data\n\r", ret);
+	for (i = 0; i < ret; i++)
+	{
+		ANO_DT_Data_Receive_Prepare(data[i]);
+		//printf("0x%02X ", data[i]);
+	}
+	//表示一帧数据接收完成
+	/**************************************************************************/
+
+#else
+	USB_SIL_Read(EP1_OUT, USB_Receive_Buffer);
+	USB_Received_Flag = 1;
+#endif
 }
 /*******************************************************************************
 * Function Name  : EP2_IN_Callback.
@@ -69,8 +88,6 @@ void EP1_OUT_Callback(void)
 *******************************************************************************/
 void EP2_IN_Callback(void)
 {
-
 }
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/
-

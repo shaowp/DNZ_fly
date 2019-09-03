@@ -1,5 +1,6 @@
 #ifndef _PID_H_
 #define _PID_H_
+#include "sys.h"
 #define ABS(X) (((X) > 0) ? (X) : -(X))
 #define LIMIT(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 
@@ -27,5 +28,5 @@ void PID_Init(void); //PID参数初始化
 
 extern Struct_PID RateX_PID, RateY_PID, RateZ_PID; //内环
 extern Struct_PID Pitch_PID, Roll_PID, Yaw_PID;	//外环
-
+extern u8 PID_send_flag;
 #endif

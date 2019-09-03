@@ -31,3 +31,6 @@
 ..\obj\usart.o: ..\STM32F10x_FWLib\inc\misc.h
 ..\obj\usart.o: ..\SYSTEM\usart\usart.h
 ..\obj\usart.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\usart.o: ..\HAL\pid.h
+..\obj\usart.o: ..\HAL\ANO_USART.h
+..\obj\usart.o: ..\SYSTEM\delay\delay.h

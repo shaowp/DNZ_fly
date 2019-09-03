@@ -16,6 +16,8 @@
 #include "usbio.h"
 #include "control.h"
 #include "pid.h"
+#include "ANO_USART.h"
+
 /************************************************
 DNZ_fly飞控程序 v0.1 @shaowp
 main program
@@ -23,10 +25,9 @@ main program
 名称				主优先级			次优先级
 TIM1（主中断）			2					0
 TIM4（遥控器）			1					1
-串口调参				0					2
-
+串口调参			    0					2
+USB通讯				    1 					0
 ************************************************/
-
 int main(void)
 {
 	Set_System();									//系统时钟初始化
@@ -48,16 +49,19 @@ int main(void)
 	USB_Interrupts_Config();
 	Set_USBClock();
 	USB_Init();
-	BLDC_calibration();//电调校准
-	PID_Init();//PID参数初始化
+	BLDC_calibration(); //电调校准
+	PID_Init();			//PID参数初始化
+
 	// Accel_six_Calibartion();
 	// Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
 	// Gyro_Calibartion(); //磁力计校准
 	// uart_init(500000);
 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
-	
+
 	while (1)
 	{
+		//在usb_endp.c  EP1_OUT_Callback  中修改的，查找 fuck_USB_REC 可以搜到
+
 		//发送传感器数据
 		ANO_DT_Send_Senser(MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
 						   MPU_GYRO.gyrox, MPU_GYRO.gyroy, MPU_GYRO.gyroz,
@@ -67,8 +71,20 @@ int main(void)
 
 		//发送遥控器数据
 		ANO_DT_Send_RCData(RC_data.thr, RC_data.yaw, RC_data.rol, RC_data.pit, 0, 0, 0, 0, 0, 0);
-		
+
 		//发送电机数据
-		ANO_DT_Send_MotoPWM(1500, 1500, 1500, 1500, 0, 0, 0, 0);
+		ANO_DT_Send_MotoPWM(1500, 1200, 900, 600, 0, 0, 0, 0);
+
+		//发送PID数据
+		if (PID_send_flag == 1)
+		{
+			ANO_DT_Send_PID(1, RateX_PID.Kp, RateX_PID.Ki, RateX_PID.Kd,
+							RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd,
+							RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd);
+			ANO_DT_Send_PID(2, Roll_PID.Kp, Roll_PID.Ki, Roll_PID.Kd,
+							Pitch_PID.Kp, Pitch_PID.Ki, Pitch_PID.Kd,
+							Yaw_PID.Kp, Yaw_PID.Ki, Yaw_PID.Kd);
+			PID_send_flag = 0;
+		}
 	}
 }

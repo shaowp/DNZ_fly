@@ -23,6 +23,9 @@
 		"control.h": "c",
 		"random": "c",
 		"limits": "c",
-		"pid.h": "c"
+		"pid.h": "c",
+		"array": "c",
+		"string": "c",
+		"platform_config.h": "c"
 	}
 }

@@ -42,3 +42,4 @@
 ..\obj\scheduler.o: ..\MATH\IMU.h
 ..\obj\scheduler.o: ..\HAL\ANO_USART.h
 ..\obj\scheduler.o: ..\HAL\control.h
+..\obj\scheduler.o: ..\HAL\pid.h

@@ -1,13 +1,10 @@
 ..\obj\control.o: ..\HAL\control.c
 ..\obj\control.o: ..\HAL\control.h
 ..\obj\control.o: ..\HAL\pid.h
-..\obj\control.o: ..\MATH\IMU.h
-..\obj\control.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-..\obj\control.o: ..\HARDWARE\MPU6050\mpu6050.h
-..\obj\control.o: ..\HARDWARE\SOFT_IIC\softiic.h
 ..\obj\control.o: ..\SYSTEM\sys\sys.h
 ..\obj\control.o: ..\SYSTEM\stm32f10x.h
 ..\obj\control.o: ..\CORE\core_cm3.h
+..\obj\control.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\control.o: ..\SYSTEM\system_stm32f10x.h
 ..\obj\control.o: ..\SYSTEM\stm32f10x_conf.h
 ..\obj\control.o: ..\STM32F10x_FWLib\inc\stm32f10x_adc.h
@@ -34,6 +31,9 @@
 ..\obj\control.o: ..\STM32F10x_FWLib\inc\stm32f10x_usart.h
 ..\obj\control.o: ..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h
 ..\obj\control.o: ..\STM32F10x_FWLib\inc\misc.h
+..\obj\control.o: ..\MATH\IMU.h
+..\obj\control.o: ..\HARDWARE\MPU6050\mpu6050.h
+..\obj\control.o: ..\HARDWARE\SOFT_IIC\softiic.h
 ..\obj\control.o: ..\SYSTEM\delay\delay.h
 ..\obj\control.o: ..\SYSTEM\usart\usart.h
 ..\obj\control.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

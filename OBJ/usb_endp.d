@@ -41,3 +41,9 @@
 ..\obj\usb_endp.o: ..\USB\STM32_USB-FS-Device_Driver\inc\usb_sil.h
 ..\obj\usb_endp.o: ..\USB\CONFIG\usb_istr.h
 ..\obj\usb_endp.o: ..\USB\CONFIG\usb_desc.h
+..\obj\usb_endp.o: ..\HAL\ANO_USART.h
+..\obj\usb_endp.o: ..\SYSTEM\delay\delay.h
+..\obj\usb_endp.o: ..\SYSTEM\sys\sys.h
+..\obj\usb_endp.o: ..\SYSTEM\usart\usart.h
+..\obj\usb_endp.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\usb_endp.o: ..\USB\CONFIG\usbio.h

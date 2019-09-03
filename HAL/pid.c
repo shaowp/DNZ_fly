@@ -1,7 +1,12 @@
 #include "pid.h"
 
+
+
 Struct_PID RateX_PID, RateY_PID, RateZ_PID; //内环
 Struct_PID Pitch_PID, Roll_PID, Yaw_PID;	//外环
+
+u8 PID_send_flag;
+
 
 //PID计算，分为内环和外环的计算
 //9月2日：为了完成原型，使用分开编写内外环代码
@@ -58,23 +63,23 @@ void PID_Init() //PID参数初始化
 {
 	/*************内环*******************/
 	//参数随便写的
-	RateX_PID.Kp = 0;
-	RateX_PID.Ki = 0;
-	RateX_PID.Kd = 0;
+	RateX_PID.Kp = 0.1;
+	RateX_PID.Ki = 0.2;
+	RateX_PID.Kd = 0.3;
 	RateX_PID.Err_Max = 30;
 	RateX_PID.IntegLimitHigh = 20;
 	RateX_PID.IntegLimitLow = -20;
 
-	RateY_PID.Kp = 0;
-	RateY_PID.Ki = 0;
-	RateY_PID.Kd = 0;
+	RateY_PID.Kp = 0.4;
+	RateY_PID.Ki = 0.5;
+	RateY_PID.Kd = 0.6;
 	RateY_PID.Err_Max = 30;
 	RateY_PID.IntegLimitHigh = 20;
 	RateY_PID.IntegLimitLow = -20;
 
-	RateZ_PID.Kp = 0;
-	RateZ_PID.Ki = 0;
-	RateZ_PID.Kd = 0;
+	RateZ_PID.Kp = 0.7;
+	RateZ_PID.Ki = 0.7;
+	RateZ_PID.Kd = 0.9;
 	RateZ_PID.Err_Max = 30;
 	RateZ_PID.IntegLimitHigh = 20;
 	RateZ_PID.IntegLimitLow = -20;
