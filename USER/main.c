@@ -17,7 +17,7 @@
 #include "control.h"
 #include "pid.h"
 #include "ANO_USART.h"
-
+#include "stflash.h"
 /************************************************
 DNZ_fly飞控程序 v0.1 @shaowp
 main program
@@ -37,10 +37,12 @@ int main(void)
 	SOFT_IIC_Init();								//初始化软件IIC
 	MPU_Init();
 	AK8975_Init();
+	AT24CXX_Init();
 
 	TIM1_Int_Init(4999, 71);  //5ms,200HZ	//5ms作为基础
 	TIM2_PWM_Init(19999, 71); //20ms,50HZ
 	TIM4_Cap_Init(19999, 71);
+	BLDC_calibration(); //电调校准
 
 	delay_ms(1800);
 	USB_Port_Set(0); //USB先断开
@@ -49,8 +51,7 @@ int main(void)
 	USB_Interrupts_Config();
 	Set_USBClock();
 	USB_Init();
-	BLDC_calibration(); //电调校准
-	PID_Init();			//PID参数初始化
+	PID_Init(); //PID参数初始化
 
 	// Accel_six_Calibartion();
 	// Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
@@ -73,18 +74,19 @@ int main(void)
 		ANO_DT_Send_RCData(RC_data.thr, RC_data.yaw, RC_data.rol, RC_data.pit, 0, 0, 0, 0, 0, 0);
 
 		//发送电机数据
-		ANO_DT_Send_MotoPWM(1500, 1200, 900, 600, 0, 0, 0, 0);
+		ANO_DT_Send_MotoPWM(MOTOR1 - 1000, MOTOR2 - 1000, MOTOR3 - 1000, MOTOR4 - 1000, 0, 0, 0, 0);
 
 		//发送PID数据
-		if (PID_send_flag == 1)
+		if (PID_send_flag)
 		{
-			ANO_DT_Send_PID(1, RateX_PID.Kp, RateX_PID.Ki, RateX_PID.Kd,
-							RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd,
-							RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd);
-			ANO_DT_Send_PID(2, Roll_PID.Kp, Roll_PID.Ki, Roll_PID.Kd,
-							Pitch_PID.Kp, Pitch_PID.Ki, Pitch_PID.Kd,
-							Yaw_PID.Kp, Yaw_PID.Ki, Yaw_PID.Kd);
+			send_PID();
 			PID_send_flag = 0;
+		}
+
+		if (PID_save_flag)
+		{
+			save_PID();
+			PID_save_flag = 0;
 		}
 	}
 }

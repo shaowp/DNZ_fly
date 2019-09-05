@@ -30,3 +30,9 @@
 ..\obj\pid.o: ..\STM32F10x_FWLib\inc\stm32f10x_usart.h
 ..\obj\pid.o: ..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h
 ..\obj\pid.o: ..\STM32F10x_FWLib\inc\misc.h
+..\obj\pid.o: ..\HARDWARE\ST_FLASH\stflash.h
+..\obj\pid.o: ..\HARDWARE\SOFT_IIC\softiic.h
+..\obj\pid.o: ..\HAL\ANO_USART.h
+..\obj\pid.o: ..\SYSTEM\delay\delay.h
+..\obj\pid.o: ..\SYSTEM\usart\usart.h
+..\obj\pid.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

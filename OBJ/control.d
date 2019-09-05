@@ -38,3 +38,4 @@
 ..\obj\control.o: ..\SYSTEM\usart\usart.h
 ..\obj\control.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\control.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\control.o: ..\HARDWARE\RC\rc_process.h

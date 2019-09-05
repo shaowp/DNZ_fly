@@ -2,11 +2,13 @@
 #include "pid.h"
 #include "IMU.h"
 #include "mpu6050.h"
+#include "rc_process.h"
+// #define MOTOR1 TIM2->CCR1 //对应飞控板PWM_OUT1
+// #define MOTOR2 TIM2->CCR2 //对应飞控板PWM_OUT2
+// #define MOTOR3 TIM2->CCR3 //对应飞控板PWM_OUT3
+// #define MOTOR4 TIM2->CCR4 //对应飞控板PWM_OUT4
 
-#define MOTOR1 TIM2->CCR1 //对应飞控板PWM_OUT1
-#define MOTOR2 TIM2->CCR2 //对应飞控板PWM_OUT2
-#define MOTOR3 TIM2->CCR3 //对应飞控板PWM_OUT3
-#define MOTOR4 TIM2->CCR4 //对应飞控板PWM_OUT4
+short MOTOR1, MOTOR2, MOTOR3, MOTOR4; //四个电机
 
 //电调校准
 void BLDC_calibration(void)
@@ -22,7 +24,6 @@ void BLDC_calibration(void)
 	TIM2->CCR4 = 1100;
 	delay_ms(1000);
 }
-
 
 void AttitudePidControl() //姿态PID控制
 {
@@ -45,8 +46,8 @@ void AttitudePidControl() //姿态PID控制
 	RateY_PID.measured = MPU_GYRO.gyroy / 16.3825 * 0.0174532;
 
 	//内环角速度控制
-	pidupdate_Rate(&Pitch_PID);
-	pidupdate_Rate(&Roll_PID);
+	pidupdate_Rate(&RateY_PID);
+	pidupdate_Rate(&RateX_PID);
 
 	//YAW的单独控制
 	// Yaw_PID.desired = 0; //YAW暂时不加
@@ -55,7 +56,19 @@ void AttitudePidControl() //姿态PID控制
 	// RateZ_PID.desired = Yaw_PID.out;
 	// RateZ_PID.measured = MPU_GYRO.gyroz / 16.3825 * 0.0174532;
 	// pidupdate_Rate(&Yaw_PID);
+
+	//内环的输出就是电机的输出
+	MOTOR1 = MOTOR2 = MOTOR3 = MOTOR4 = RC_data.thr;
+
+	MOTOR3 += (int16_t)(-RateY_PID.out - RateX_PID.out - RateZ_PID.out); //M3
+	MOTOR1 += (int16_t)(+RateY_PID.out + RateX_PID.out - RateZ_PID.out); //M1
+	MOTOR4 += (int16_t)(-RateY_PID.out + RateX_PID.out + RateZ_PID.out); //M4
+	MOTOR2 += (int16_t)(+RateY_PID.out - RateX_PID.out + RateZ_PID.out); //M2
 }
 void MotorControl() //电机输出
 {
+	TIM2->CCR1=MOTOR1;
+	TIM2->CCR2=MOTOR2;
+	TIM2->CCR3=MOTOR3;
+	TIM2->CCR4=MOTOR4;
 }

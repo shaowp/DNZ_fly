@@ -1,6 +1,8 @@
 #include "ANO_USART.h"
 #include "usbio.h"
 #include "pid.h"
+#include "stflash.h"
+
 //数据拆分宏定义，在发送大于1字节的数据类型时，比如int16、float等，需要把数据拆分成单独字节进行发送
 #define BYTE0(dwTemp) (*((char *)(&dwTemp)))
 #define BYTE1(dwTemp) (*((char *)(&dwTemp) + 1))
@@ -288,6 +290,7 @@ void ANO_DT_Send_MotoPWM(u16 m_1, u16 m_2, u16 m_3, u16 m_4, u16 m_5, u16 m_6, u
 	usart1_send_str(data_to_send, _cnt);
 }
 
+//向上位机发送PID数据
 void ANO_DT_Send_PID(u8 group, float p1_p, float p1_i, float p1_d, float p2_p, float p2_i, float p2_d, float p3_p, float p3_i, float p3_d)
 {
 	u8 _cnt = 0;
@@ -340,6 +343,10 @@ void ANO_DT_Send_PID(u8 group, float p1_p, float p1_i, float p1_d, float p2_p, f
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+/*
+            以下程序均在USB中断中调用
+*/
 //Data_Receive_Prepare函数是协议预解析，根据协议的格式，将收到的数据进行一次格式性解析，格式正确的话再进行数据解析
 //移植时，此函数应由用户根据自身使用的通信方式自行调用，比如串口每收到一字节数据，则调用此函数一次
 //此函数解析出符合格式的数据帧后，会自行调用数据解析函数
@@ -418,7 +425,7 @@ static void ANO_DT_Send_Check(u8 head, u8 check_sum)
 void ANO_DT_Data_Receive_Anl(u8 *data_buf, u8 num)
 {
 	u8 sum = 0;
-	u8 i = 0;
+	u8 i;
 	for (i = 0; i < (num - 1); i++)
 		sum += *(data_buf + i);
 	if (!(sum == *(data_buf + num - 1)))
@@ -467,6 +474,7 @@ void ANO_DT_Data_Receive_Anl(u8 *data_buf, u8 num)
 		// }
 	}
 
+	//存PID数据
 	if (*(data_buf + 2) == 0X10) //PID1
 	{
 		// printf("get PID 1\n");
@@ -480,7 +488,33 @@ void ANO_DT_Data_Receive_Anl(u8 *data_buf, u8 num)
 		RateZ_PID.Ki = 0.001 * ((vs16)(*(data_buf + 18) << 8) | *(data_buf + 19));
 		RateZ_PID.Kd = 0.001 * ((vs16)(*(data_buf + 20) << 8) | *(data_buf + 21));
 		ANO_DT_Send_Check(*(data_buf + 2), sum);
+		PID_save_flag = 1;
 		// Param_SavePID();
+		// {
+		// 	//把数据存到flash
+		// 	TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+		// 	//写入的参数为  地址   数据   数据长度（几个字节）
+		// 	//内环数据的写入
+		// 	AT24CXX_WriteLenByte(RateX_PID_kp, (u16)(RateX_PID.Kp * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateX_PID_ki, (u16)(RateX_PID.Ki * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateX_PID_kd, (u16)(RateX_PID.Kd * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateY_PID_kp, (u16)(RateY_PID.Kp * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateY_PID_ki, (u16)(RateY_PID.Ki * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateY_PID_kd, (u16)(RateY_PID.Kd * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateZ_PID_kp, (u16)(RateZ_PID.Kp * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateZ_PID_ki, (u16)(RateZ_PID.Ki * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(RateZ_PID_kd, (u16)(RateZ_PID.Kd * 1000), 2);
+		// 	delay_ms(10);
+		// 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
+		// }
 	}
 	if (*(data_buf + 2) == 0X11) //PID2
 	{
@@ -495,7 +529,36 @@ void ANO_DT_Data_Receive_Anl(u8 *data_buf, u8 num)
 		Yaw_PID.Ki = 0.001 * ((vs16)(*(data_buf + 18) << 8) | *(data_buf + 19));
 		Yaw_PID.Kd = 0.001 * ((vs16)(*(data_buf + 20) << 8) | *(data_buf + 21));
 		ANO_DT_Send_Check(*(data_buf + 2), sum);
+		PID_save_flag = 2;
+		
+		
+		
+		
 		// Param_SavePID();
+		// {
+		// 	TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+		// 	//外环数据的写入
+		// 	AT24CXX_WriteLenByte(Pitch_PID_kp, (u16)(Pitch_PID.Kp * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Pitch_PID_ki, (u16)(Pitch_PID.Ki * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Pitch_PID_kd, (u16)(Pitch_PID.Kd * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Roll_PID_kp, (u16)(Roll_PID.Kp * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Roll_PID_ki, (u16)(Roll_PID.Ki * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Roll_PID_kd, (u16)(Roll_PID.Kd * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Yaw_PID_kp, (u16)(Yaw_PID.Kp * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Yaw_PID_ki, (u16)(Yaw_PID.Ki * 1000), 2);
+		// 	delay_ms(10);
+		// 	AT24CXX_WriteLenByte(Yaw_PID_kd, (u16)(Yaw_PID.Kd * 1000), 2);
+		// 	delay_ms(10);
+		// 	//打开中断
+		// 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
+		// }
 	}
 	if (*(data_buf + 2) == 0X12) //PID3
 	{

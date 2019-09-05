@@ -6,6 +6,7 @@
 "..\obj\timer.o"
 "..\obj\interrupt.o"
 "..\obj\rc_process.o"
+"..\obj\stflash.o"
 "..\obj\delay.o"
 "..\obj\sys.o"
 "..\obj\usart.o"

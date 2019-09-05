@@ -1,12 +1,11 @@
 #include "pid.h"
-
-
-
+#include "stflash.h"
+#include "ANO_USART.h"
 Struct_PID RateX_PID, RateY_PID, RateZ_PID; //内环
 Struct_PID Pitch_PID, Roll_PID, Yaw_PID;	//外环
 
-u8 PID_send_flag;
-
+u8 PID_send_flag; //向上位机发送PID数据
+u8 PID_save_flag; //将上位机发来的数据存储到内存中
 
 //PID计算，分为内环和外环的计算
 //9月2日：为了完成原型，使用分开编写内外环代码
@@ -61,6 +60,7 @@ float pidupdate_Rate(Struct_PID *pid)
 
 void PID_Init() //PID参数初始化
 {
+
 	/*************内环*******************/
 	//参数随便写的
 	RateX_PID.Kp = 0.1;
@@ -107,4 +107,90 @@ void PID_Init() //PID参数初始化
 	Yaw_PID.Err_Max = 30;
 	Yaw_PID.IntegLimitHigh = 20;
 	Yaw_PID.IntegLimitLow = -20;
+
+	read_PID();
+}
+
+void send_PID(void)
+{
+	read_PID();
+	ANO_DT_Send_PID(1, RateX_PID.Kp, RateX_PID.Ki, RateX_PID.Kd,
+					RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd,
+					RateZ_PID.Kp, RateZ_PID.Ki, RateZ_PID.Kd);
+	ANO_DT_Send_PID(2, Roll_PID.Kp, Roll_PID.Ki, Roll_PID.Kd,
+					Pitch_PID.Kp, Pitch_PID.Ki, Pitch_PID.Kd,
+					Yaw_PID.Kp, Yaw_PID.Ki, Yaw_PID.Kd);
+	PID_send_flag = 0;
+}
+
+void save_PID(void)
+{
+	//存数据的时候关掉主中断
+
+	//写入的参数为  地址   数据   数据长度（几个字节）
+	//内环数据的写入
+	if (PID_save_flag == 1)
+	{
+		TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+		AT24CXX_WriteLenByte(RateX_PID_kp, (u16)(RateX_PID.Kp * 1000), 2);
+		AT24CXX_WriteLenByte(RateX_PID_ki, (u16)(RateX_PID.Ki * 1000), 2);
+		AT24CXX_WriteLenByte(RateX_PID_kd, (u16)(RateX_PID.Kd * 1000), 2);
+
+		AT24CXX_WriteLenByte(RateY_PID_kp, (u16)(RateY_PID.Kp * 1000), 2);
+		AT24CXX_WriteLenByte(RateY_PID_ki, (u16)(RateY_PID.Ki * 1000), 2);
+		AT24CXX_WriteLenByte(RateY_PID_kd, (u16)(RateY_PID.Kd * 1000), 2);
+
+		AT24CXX_WriteLenByte(RateZ_PID_kp, (u16)(RateZ_PID.Kp * 1000), 2);
+		AT24CXX_WriteLenByte(RateZ_PID_ki, (u16)(RateZ_PID.Ki * 1000), 2);
+		AT24CXX_WriteLenByte(RateZ_PID_kd, (u16)(RateZ_PID.Kd * 1000), 2);
+
+		TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
+	}
+	if (PID_save_flag == 2)
+	{
+		TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+		AT24CXX_WriteLenByte(Pitch_PID_kp, (u16)(Pitch_PID.Kp * 1000), 2);
+		AT24CXX_WriteLenByte(Pitch_PID_ki, (u16)(Pitch_PID.Ki * 1000), 2);
+		AT24CXX_WriteLenByte(Pitch_PID_kd, (u16)(Pitch_PID.Kd * 1000), 2);
+
+		AT24CXX_WriteLenByte(Roll_PID_kp, (u16)(Roll_PID.Kp * 1000), 2);
+		AT24CXX_WriteLenByte(Roll_PID_ki, (u16)(Roll_PID.Ki * 1000), 2);
+		AT24CXX_WriteLenByte(Roll_PID_kd, (u16)(Roll_PID.Kd * 1000), 2);
+
+		AT24CXX_WriteLenByte(Yaw_PID_kp, (u16)(Yaw_PID.Kp * 1000), 2);
+		AT24CXX_WriteLenByte(Yaw_PID_ki, (u16)(Yaw_PID.Ki * 1000), 2);
+		AT24CXX_WriteLenByte(Yaw_PID_kd, (u16)(Yaw_PID.Kd * 1000), 2);
+		TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
+	}
+	PID_save_flag = 0;
+}
+
+void read_PID(void)
+{
+	//读取的   地址       数据的长度
+	//读取内环数据
+	TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+	RateX_PID.Kp = AT24CXX_ReadLenByte(RateX_PID_kp, 2) / 1000.0;
+	RateX_PID.Ki = AT24CXX_ReadLenByte(RateX_PID_ki, 2) / 1000.0;
+	RateX_PID.Kd = AT24CXX_ReadLenByte(RateX_PID_kd, 2) / 1000.0;
+	RateY_PID.Kp = AT24CXX_ReadLenByte(RateY_PID_kp, 2) / 1000.0;
+	RateY_PID.Ki = AT24CXX_ReadLenByte(RateY_PID_ki, 2) / 1000.0;
+	RateY_PID.Kd = AT24CXX_ReadLenByte(RateY_PID_kd, 2) / 1000.0;
+	RateZ_PID.Kp = AT24CXX_ReadLenByte(RateZ_PID_kp, 2) / 1000.0;
+	RateZ_PID.Ki = AT24CXX_ReadLenByte(RateZ_PID_ki, 2) / 1000.0;
+	RateZ_PID.Kd = AT24CXX_ReadLenByte(RateZ_PID_kd, 2) / 1000.0;
+
+	// // //读取外环数据
+	Pitch_PID.Kp = AT24CXX_ReadLenByte(Pitch_PID_kp, 2) / 1000.0;
+	Pitch_PID.Ki = AT24CXX_ReadLenByte(Pitch_PID_ki, 2) / 1000.0;
+	Pitch_PID.Kd = AT24CXX_ReadLenByte(Pitch_PID_kd, 2) / 1000.0;
+
+	Roll_PID.Kp = AT24CXX_ReadLenByte(Roll_PID_kp, 2) / 1000.0;
+	Roll_PID.Ki = AT24CXX_ReadLenByte(Roll_PID_ki, 2) / 1000.0;
+	Roll_PID.Kd = AT24CXX_ReadLenByte(Roll_PID_kd, 2) / 1000.0;
+
+	Yaw_PID.Kp = AT24CXX_ReadLenByte(Yaw_PID_kp, 2) / 1000.0;
+	Yaw_PID.Ki = AT24CXX_ReadLenByte(Yaw_PID_ki, 2) / 1000.0;
+	Yaw_PID.Kd = AT24CXX_ReadLenByte(Yaw_PID_kd, 2) / 1000.0;
+	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
 }

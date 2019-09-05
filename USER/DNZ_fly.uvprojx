@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4101</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\SYSTEM;..\HARDWARE\AK8975;..\HARDWARE\MPU6050;..\HARDWARE\SOFT_IIC;..\HARDWARE\TIMER;..\MATH;..\HAL;..\HARDWARE\INTERRUPT;..\HARDWARE\RC;..\USB\CONFIG;..\USB\STM32_USB-FS-Device_Driver\inc;..\USB\CONFIG</IncludePath>
+              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\SYSTEM;..\HARDWARE\AK8975;..\HARDWARE\MPU6050;..\HARDWARE\SOFT_IIC;..\HARDWARE\TIMER;..\MATH;..\HAL;..\HARDWARE\INTERRUPT;..\HARDWARE\RC;..\USB\CONFIG;..\USB\STM32_USB-FS-Device_Driver\inc;..\USB\CONFIG;..\HARDWARE\ST_FLASH</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -419,6 +419,11 @@
               <FileName>rc_process.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\RC\rc_process.c</FilePath>
+            </File>
+            <File>
+              <FileName>stflash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\ST_FLASH\stflash.c</FilePath>
             </File>
           </Files>
         </Group>

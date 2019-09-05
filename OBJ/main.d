@@ -57,3 +57,4 @@
 ..\obj\main.o: ..\USB\CONFIG\usbio.h
 ..\obj\main.o: ..\HAL\control.h
 ..\obj\main.o: ..\HAL\pid.h
+..\obj\main.o: ..\HARDWARE\ST_FLASH\stflash.h

@@ -35,3 +35,5 @@
 ..\obj\ano_usart.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\ano_usart.o: ..\USB\CONFIG\usbio.h
 ..\obj\ano_usart.o: ..\HAL\pid.h
+..\obj\ano_usart.o: ..\HARDWARE\ST_FLASH\stflash.h
+..\obj\ano_usart.o: ..\HARDWARE\SOFT_IIC\softiic.h

@@ -26,6 +26,7 @@
 		"pid.h": "c",
 		"array": "c",
 		"string": "c",
-		"platform_config.h": "c"
+		"platform_config.h": "c",
+		"stflash.h": "c"
 	}
 }
