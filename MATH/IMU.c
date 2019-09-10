@@ -99,20 +99,6 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	ay = ay * norm;
 	az = az * norm;
 
-	norm = Q_rsqrt(mx * mx + my * my + mz * mz);
-	mx = mx * norm;
-	my = my * norm;
-	mz = mz * norm;
-
-	// printf("mx%.2f\tmy%.2f\tmz%.2f\t",mx,my,mz);
-
-	//磁力计算法
-	hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
-	hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
-	hz = 2.0f * mx * (q1q3 - q0q2) + 2.0f * my * (q2q3 + q0q1) + 2.0f * mz * (0.5f - q1q1 - q2q2);
-	bx = sqrt(hx * hx + hy * hy);
-	bz = hz;
-
 	//加速度算法
 	//vx、vy、vz，其实就是当前的机体坐标参照系上，换算出来的重力单位向量。(用表示机体姿态的四元数进行换算)
 	// estimated direction of gravity and flux (v and w)
@@ -121,21 +107,37 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	vz = q0q0 - q1q1 - q2q2 + q3q3;
 	// printf("%.2f\t%.2f\t%.2f\n", vx, vy, vz);
 
-	//磁力计算法
-	wx = 2 * bx * (0.5f - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2);
-	wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3);
-	wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5f - q1q1 - q2q2);
-
-	// 加速度，磁力计融合
-	// error is sum of cross product between reference direction of fields and direction measured by sensors
-	ex = (ay * vz - az * vy) + (my * wz - mz * wy);
-	ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
-	ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
-
-	// 单独加速度，不带磁力计
-	// ex = (ay * vz - az * vy);
-	// ey = (az * vx - ax * vz);
-	// ez = (ax * vy - ay * vx);
+	//磁力失效
+	if (mx == 0 && my == 0 && mz == 0)
+	{
+		// 单独加速度，不带磁力计
+		ex = (ay * vz - az * vy);
+		ey = (az * vx - ax * vz);
+		ez = (ax * vy - ay * vx);
+	}
+	else //磁力计工作
+	{
+		norm = Q_rsqrt(mx * mx + my * my + mz * mz);
+		mx = mx * norm;
+		my = my * norm;
+		mz = mz * norm;
+		//磁力计算法
+		hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
+		hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
+		hz = 2.0f * mx * (q1q3 - q0q2) + 2.0f * my * (q2q3 + q0q1) + 2.0f * mz * (0.5f - q1q1 - q2q2);
+		bx = sqrt(hx * hx + hy * hy);
+		bz = hz;
+		//磁力计算法
+		wx = 2 * bx * (0.5f - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2);
+		wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3);
+		wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5f - q1q1 - q2q2);
+		// printf("mx%.2f\tmy%.2f\tmz%.2f\t",mx,my,mz);
+		// 加速度，磁力计融合
+		// error is sum of cross product between reference direction of fields and direction measured by sensors
+		ex = (ay * vz - az * vy) + (my * wz - mz * wy);
+		ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
+		ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
+	}
 
 	if (ex != 0.0f && ey != 0.0f && ez != 0.0f)
 	{
@@ -211,7 +213,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	/*偏航角一阶互补*/
 	if ((yaw_G > 2.0f) || (yaw_G < -2.0f)) //数据太小可以认为是干扰，不是偏航动作
 	{
-		IMU.yaw += gz * Gyro_G * 0.005;
+		IMU.yaw += yaw_G * 0.005;
 	}
 	if ((IMU.yaw_mag > 90 && IMU.yaw < -90) || (IMU.yaw_mag < -90 && IMU.yaw > 90))
 		IMU.yaw = -IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;

@@ -6,7 +6,7 @@
 #define RtA 57.324841
 #define AtR 0.0174533
 #define Acc_G 0.0011963
-#define Gyro_G 0.03051756
+#define Gyro_G 0.03051756 * 2 //0.305是1000°/s的数据，我用的2000°/s，应该x2
 #define Gyro_Gr 0.0005326
 
 #define FILTER_ACC_NUM 10

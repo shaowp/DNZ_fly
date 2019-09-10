@@ -18,6 +18,9 @@
 #include "pid.h"
 #include "ANO_USART.h"
 #include "stflash.h"
+
+#define USE_443_data	//串口1使用数传，妈的，这实在太慢了，只能用来调参了
+
 /************************************************
 DNZ_fly飞控程序 v0.1 @shaowp
 main program
@@ -62,7 +65,7 @@ int main(void)
 	while (1)
 	{
 		//在usb_endp.c  EP1_OUT_Callback  中修改的，查找 fuck_USB_REC 可以搜到
-
+//#ifndef USE_443_data
 		//发送传感器数据
 		ANO_DT_Send_Senser(MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
 						   MPU_GYRO.gyrox, MPU_GYRO.gyroy, MPU_GYRO.gyroz,
@@ -75,7 +78,7 @@ int main(void)
 
 		//发送电机数据
 		ANO_DT_Send_MotoPWM(MOTOR1 - 1000, MOTOR2 - 1000, MOTOR3 - 1000, MOTOR4 - 1000, 0, 0, 0, 0);
-
+//#endif
 		//发送PID数据
 		if (PID_send_flag)
 		{

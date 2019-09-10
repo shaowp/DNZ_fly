@@ -60,15 +60,15 @@ void EP1_OUT_Callback(void)
 	SetEPRxStatus(ENDP1, EP_RX_VALID);
 	USB_Received_Flag = 1;
 
-
 	/**************************************************************************/
 	//fuck_USB_REC
 	//USB中断接收
-	ret = USB_GetData(data, sizeof(data));
+	//ret = USB_GetData(data, sizeof(data));
 	// printf("usb get data %d byte data\n\r", ret);
+	ret = sizeof(USB_Receive_Buffer);
 	for (i = 0; i < ret; i++)
 	{
-		ANO_DT_Data_Receive_Prepare(data[i]);
+		ANO_DT_Data_Receive_Prepare(USB_Receive_Buffer[i]);
 		//printf("0x%02X ", data[i]);
 	}
 	//表示一帧数据接收完成
