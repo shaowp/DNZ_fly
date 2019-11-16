@@ -18,7 +18,7 @@
 //b00.24	b1-0.30	b20.21	k00.99	k11.00	k20.97
 // b00.26	b1-0.30	b20.21	k00.99	k11.00	k20.97
 float K[3] = {0.99, 11.0, 20.97}; //默认标度误差
-float B[3] = {0.26, -0.3, 20.21};   //默认零位误差
+float B[3] = {0.26, -0.3, 20.21}; //默认零位误差
 
 //初始化MPU6050
 //返回值:0,成功
@@ -30,7 +30,7 @@ u8 MPU_Init(void)
 	delay_ms(100);
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); //唤醒MPU6050
 	MPU_Set_Gyro_Fsr(3);					 //陀螺仪传感器,±1000dps///参数为3的话为±2000
-	MPU_Set_Accel_Fsr(0);					 //加速度传感器,±2g
+	MPU_Set_Accel_Fsr(2);					 //加速度传感器,±8g
 	MPU_Set_Rate(300);						 //设置采样率300Hz
 	MPU_Write_Byte(MPU_INT_EN_REG, 0X00);	//关闭所有中断
 	MPU_Write_Byte(MPU_USER_CTRL_REG, 0X00); //I2C主模式关闭
@@ -51,13 +51,13 @@ u8 MPU_Init(void)
 	}
 
 	//设置变量的offset
-	MPU_GYRO.gyrox_offset = -112;
-	MPU_GYRO.gyroy_offset = 101;
-	MPU_GYRO.gyroz_offset = 4;
+	MPU_GYRO.gyrox_offset = 641;
+	MPU_GYRO.gyroy_offset = 5;
+	MPU_GYRO.gyroz_offset = 23;
 
-	MPU_ACC.accx_offset = 0;
-	MPU_ACC.accy_offset = 0;
-	MPU_ACC.accz_offset = 0;
+	MPU_ACC.accx_offset = 455;
+	MPU_ACC.accy_offset = -130;
+	MPU_ACC.accz_offset = 411;
 
 	return 0;
 }
@@ -166,9 +166,9 @@ u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 	// MPU_ACC.accx = K[0] * temp_ax - B[0] * One_G_TO_Accel; //六面校准得出的K、B值在这里用到
 	// MPU_ACC.accy = K[1] * temp_ay - B[1] * One_G_TO_Accel;
 	// MPU_ACC.accz = K[2] * temp_az - B[2] * One_G_TO_Accel;
-	MPU_ACC.accx = temp_ax;
-	MPU_ACC.accy = temp_ay;
-	MPU_ACC.accz = temp_az;
+	MPU_ACC.accx = temp_ax - MPU_ACC.accx_offset;
+	MPU_ACC.accy = temp_ay - MPU_ACC.accy_offset;
+	MPU_ACC.accz = temp_az - MPU_ACC.accz_offset;
 	return res;
 }
 //IIC连续写
@@ -333,6 +333,31 @@ void Gyro_Calibartion(void)
 //加速度计六面校准
 void Acc_Calibartion(void)
 {
+	uint8_t k = 30;
+	int32_t ACC_xoffset = 0, ACC_yoffset = 0, ACC_zoffset = 0;
+
+	short temp_gx, temp_gy, temp_gz;
+	u8 buf[6], res, i;
+	//需要先判断飞控是否禁止
+
+	for (i = 0; i < 100; i++) //连续采样100次，一共耗时100*3=300ms
+	{
+		delay_ms(5);
+		res = MPU_Read_Len(MPU_ADDR, MPU_ACCEL_XOUTH_REG, 6, buf);
+		if (res == 0)
+		{
+			temp_gx = ((u16)buf[0] << 8) | buf[1];
+			temp_gy = ((u16)buf[2] << 8) | buf[3];
+			temp_gz = ((u16)buf[4] << 8) | buf[5];
+		}
+		ACC_xoffset += temp_gx;
+		ACC_yoffset += temp_gy;
+		ACC_zoffset += temp_gz;
+	}
+	MPU_ACC.accx_offset = ACC_xoffset / 100; //得到静态偏移值//采集了100组做平均
+	MPU_ACC.accy_offset = ACC_yoffset / 100;
+	MPU_ACC.accz_offset = ACC_zoffset / 100 - 4014;
+	printf("gxoff:%d\tgyoff:%d\tgzoff:%d\n", MPU_ACC.accx_offset, MPU_ACC.accy_offset, MPU_ACC.accz_offset);
 }
 
 /**************************************************************************/

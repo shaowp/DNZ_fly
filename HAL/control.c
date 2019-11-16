@@ -3,10 +3,11 @@
 #include "IMU.h"
 #include "mpu6050.h"
 #include "rc_process.h"
-// #define MOTOR1 TIM2->CCR1 //对应飞控板PWM_OUT1
-// #define MOTOR2 TIM2->CCR2 //对应飞控板PWM_OUT2
-// #define MOTOR3 TIM2->CCR3 //对应飞控板PWM_OUT3
-// #define MOTOR4 TIM2->CCR4 //对应飞控板PWM_OUT4
+
+// #define MOTOR4 TIM2->CCR1 //对应飞控板PWM_OUT4
+// #define MOTOR3 TIM2->CCR2 //对应飞控板PWM_OUT3
+// #define MOTOR2 TIM2->CCR3 //对应飞控板PWM_OUT2
+// #define MOTOR1 TIM2->CCR4 //对应飞控板PWM_OUT1
 
 short MOTOR1, MOTOR2, MOTOR3, MOTOR4; //四个电机
 
@@ -60,15 +61,15 @@ void AttitudePidControl() //姿态PID控制
 	//内环的输出就是电机的输出
 	MOTOR1 = MOTOR2 = MOTOR3 = MOTOR4 = RC_data.thr;
 
-	MOTOR3 += (int16_t)(-RateY_PID.out - RateX_PID.out - RateZ_PID.out); //M3
-	MOTOR1 += (int16_t)(+RateY_PID.out + RateX_PID.out - RateZ_PID.out); //M1
-	MOTOR4 += (int16_t)(-RateY_PID.out + RateX_PID.out + RateZ_PID.out); //M4
-	MOTOR2 += (int16_t)(+RateY_PID.out - RateX_PID.out + RateZ_PID.out); //M2
+	// MOTOR3 += (int16_t)(-RateY_PID.out - RateX_PID.out - RateZ_PID.out); //M3
+	// MOTOR1 += (int16_t)(+RateY_PID.out + RateX_PID.out - RateZ_PID.out); //M1
+	// MOTOR4 += (int16_t)(-RateY_PID.out + RateX_PID.out + RateZ_PID.out); //M4
+	// MOTOR2 += (int16_t)(+RateY_PID.out - RateX_PID.out + RateZ_PID.out); //M2
 }
 void MotorControl() //电机输出
 {
-	TIM2->CCR1=MOTOR1;
-	TIM2->CCR2=MOTOR2;
-	TIM2->CCR3=MOTOR3;
-	TIM2->CCR4=MOTOR4;
+	TIM2->CCR1=MOTOR4;
+	TIM2->CCR2=MOTOR3;
+	TIM2->CCR3=MOTOR2;
+	TIM2->CCR4=MOTOR1;
 }

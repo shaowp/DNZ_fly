@@ -5,7 +5,10 @@
 //卡尔曼滤波
 void ACC_IMU_Filter(void)
 {
-	static struct _1_ekf_filter ekf[3] = {{0.02, 0, 0, 0, 0.001, 0.543}, {0.02, 0, 0, 0, 0.001, 0.543}, {0.02, 0, 0, 0, 0.001, 0.543}};
+	//卡尔曼参数
+	static struct _1_ekf_filter ekf[3] = {{0.02, 0, 0, 0, 0.001, 0.543}, 
+										  {0.02, 0, 0, 0, 0.001, 0.543}, 
+										  {0.02, 0, 0, 0, 0.001, 0.543}};
 	kalman_1(&ekf[0], 1.0 * MPU_ACC.accx); //一维卡尔曼
 	kalman_1(&ekf[1], 1.0 * MPU_ACC.accy); //一维卡尔曼
 	kalman_1(&ekf[2], 1.0 * MPU_ACC.accz); //一维卡尔曼

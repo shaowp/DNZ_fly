@@ -58,3 +58,4 @@
 ..\obj\main.o: ..\HAL\control.h
 ..\obj\main.o: ..\HAL\pid.h
 ..\obj\main.o: ..\HARDWARE\ST_FLASH\stflash.h
+..\obj\main.o: ..\HARDWARE\LED\led.h

@@ -117,9 +117,11 @@ void send_PID(void)
 	ANO_DT_Send_PID(1, RateX_PID.Kp, RateX_PID.Ki, RateX_PID.Kd,
 					RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd,
 					RateZ_PID.Kp, RateZ_PID.Ki, RateZ_PID.Kd);
+	//delay_ms(2);
 	ANO_DT_Send_PID(2, Roll_PID.Kp, Roll_PID.Ki, Roll_PID.Kd,
 					Pitch_PID.Kp, Pitch_PID.Ki, Pitch_PID.Kd,
 					Yaw_PID.Kp, Yaw_PID.Ki, Yaw_PID.Kd);
+	//delay_ms(2);
 	PID_send_flag = 0;
 }
 
@@ -146,7 +148,7 @@ void save_PID(void)
 
 		TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
 	}
-	if (PID_save_flag == 2)
+	if (PID_save_flag == 2) //外环
 	{
 		TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
 		AT24CXX_WriteLenByte(Pitch_PID_kp, (u16)(Pitch_PID.Kp * 1000), 2);
@@ -162,6 +164,24 @@ void save_PID(void)
 		AT24CXX_WriteLenByte(Yaw_PID_kd, (u16)(Yaw_PID.Kd * 1000), 2);
 		TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
 	}
+	// if (PID_save_flag == 5)
+	// {
+	// 	TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+
+	// 	AT24CXX_WriteLenByte(Pitch_PID_kp, (u16)(Pitch_PID.Kp * 1000), 2);
+	// 	AT24CXX_WriteLenByte(Pitch_PID_ki, (u16)(Pitch_PID.Ki * 1000), 2);
+	// 	AT24CXX_WriteLenByte(Pitch_PID_kd, (u16)(Pitch_PID.Kd * 1000), 2);
+
+	// 	AT24CXX_WriteLenByte(Roll_PID_kp, (u16)(Roll_PID.Kp * 1000), 2);
+	// 	AT24CXX_WriteLenByte(Roll_PID_ki, (u16)(Roll_PID.Ki * 1000), 2);
+	// 	AT24CXX_WriteLenByte(Roll_PID_kd, (u16)(Roll_PID.Kd * 1000), 2);
+
+	// 	AT24CXX_WriteLenByte(Yaw_PID_kp, (u16)(Yaw_PID.Kp * 1000), 2);
+	// 	AT24CXX_WriteLenByte(Yaw_PID_ki, (u16)(Yaw_PID.Ki * 1000), 2);
+	// 	AT24CXX_WriteLenByte(Yaw_PID_kd, (u16)(Yaw_PID.Kd * 1000), 2);
+
+	// 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);  //使能指定的TIM1中断,允许更新中断
+	// }
 	PID_save_flag = 0;
 }
 

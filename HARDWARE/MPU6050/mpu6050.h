@@ -100,8 +100,9 @@ u8 MPU_Get_Gyroscope(short *gx, short *gy, short *gz);
 u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az);
 
 void Gyro_Calibartion(void);
-void Acc_Calibartion(void);
-void Accel_six_Calibartion(void);
+
+void Acc_Calibartion(void);				//简单的偏置校准
+void Accel_six_Calibartion(void);		//六面校准
 
 ////////////////////////////////////
 //////////////变量区////////////////

@@ -110,6 +110,7 @@ void TIM2_PWM_Init(u16 arr, u16 psc) //PWM的输出
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_SetBits(GPIOA, GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3); 
 
 	/* Time base configuration */
 	TIM_TimeBaseStructure.TIM_Period = arr;						//定时器计数周期 0-999  1000

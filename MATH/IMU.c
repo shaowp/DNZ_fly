@@ -81,12 +81,15 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	float q3q3 = q3 * q3;
 
 	//陀螺仪数据单位的转化
-	//传进来的是+-2000°/s的数据，
-	//需要转化成弧度
+	//将原始数据转化为度°
 	float yaw_G = gz * Gyro_G;
 
 	//2000°的量程应该选择 16.3825
 	//1000°的量程应该选择 32.765
+	//1度(°)=0.0174533弧度(rad)
+	//由于陀螺仪的数据为16位的，所有最高为32767，最小为-32767
+	//所以，32767对应2000°，-32767对应-2000°，即转化的关系为65535/4000
+	//所以，原始数据可以通过这个转化为°，最后转化为弧度
 	gx = gx / 16.3825 * 0.0174532;
 	gy = gy / 16.3825 * 0.0174532;
 	gz = gz / 16.3825 * 0.0174532;
@@ -107,37 +110,41 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	vz = q0q0 - q1q1 - q2q2 + q3q3;
 	// printf("%.2f\t%.2f\t%.2f\n", vx, vy, vz);
 
-	//磁力失效
-	if (mx == 0 && my == 0 && mz == 0)
-	{
-		// 单独加速度，不带磁力计
-		ex = (ay * vz - az * vy);
-		ey = (az * vx - ax * vz);
-		ez = (ax * vy - ay * vx);
-	}
-	else //磁力计工作
-	{
-		norm = Q_rsqrt(mx * mx + my * my + mz * mz);
-		mx = mx * norm;
-		my = my * norm;
-		mz = mz * norm;
-		//磁力计算法
-		hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
-		hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
-		hz = 2.0f * mx * (q1q3 - q0q2) + 2.0f * my * (q2q3 + q0q1) + 2.0f * mz * (0.5f - q1q1 - q2q2);
-		bx = sqrt(hx * hx + hy * hy);
-		bz = hz;
-		//磁力计算法
-		wx = 2 * bx * (0.5f - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2);
-		wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3);
-		wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5f - q1q1 - q2q2);
-		// printf("mx%.2f\tmy%.2f\tmz%.2f\t",mx,my,mz);
-		// 加速度，磁力计融合
-		// error is sum of cross product between reference direction of fields and direction measured by sensors
-		ex = (ay * vz - az * vy) + (my * wz - mz * wy);
-		ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
-		ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
-	}
+	ex = (ay * vz - az * vy);
+	ey = (az * vx - ax * vz);
+	ez = (ax * vy - ay * vx);
+
+	// 磁力失效
+	// if (mx == 0 && my == 0 && mz == 0)
+	// {
+	// 	// 单独加速度，不带磁力计
+	// 	ex = (ay * vz - az * vy);
+	// 	ey = (az * vx - ax * vz);
+	// 	ez = (ax * vy - ay * vx);
+	// }
+	// else //磁力计工作
+	// {
+	// 	norm = Q_rsqrt(mx * mx + my * my + mz * mz);
+	// 	mx = mx * norm;
+	// 	my = my * norm;
+	// 	mz = mz * norm;
+	// 	//磁力计算法
+	// 	hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
+	// 	hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
+	// 	hz = 2.0f * mx * (q1q3 - q0q2) + 2.0f * my * (q2q3 + q0q1) + 2.0f * mz * (0.5f - q1q1 - q2q2);
+	// 	bx = sqrt(hx * hx + hy * hy);
+	// 	bz = hz;
+	// 	//磁力计算法
+	// 	wx = 2 * bx * (0.5f - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2);
+	// 	wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3);
+	// 	wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5f - q1q1 - q2q2);
+	// 	// printf("mx%.2f\tmy%.2f\tmz%.2f\t",mx,my,mz);
+	// 	// 加速度，磁力计融合
+	// 	// error is sum of cross product between reference direction of fields and direction measured by sensors
+	// 	ex = (ay * vz - az * vy) + (my * wz - mz * wy);
+	// 	ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
+	// 	ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
+	// }
 
 	if (ex != 0.0f && ey != 0.0f && ez != 0.0f)
 	{
