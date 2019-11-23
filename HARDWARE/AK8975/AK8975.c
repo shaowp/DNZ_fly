@@ -114,9 +114,9 @@ int8_t AK8975_Updata(void)
 //磁力计校准
 void Mag_Calibartion(void)
 {
-//	float G_mx, G_my, G_mz;
-//	short temp_mx, temp_my, temp_mz;
-//	u8 buf[6], res;
+	//	float G_mx, G_my, G_mz;
+	//	short temp_mx, temp_my, temp_mz;
+	//	u8 buf[6], res;
 	//第一次校准。板子水平放置，然后旋转
 	delay_ms(1000);
 	delay_ms(1000);

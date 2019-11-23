@@ -7,18 +7,10 @@
 #undef FAILED
 #define FAILED 1
 
-#define AcceMax_1G 16384
-#define GRAVITY_MSS 9.80665f
-#define ACCEL_TO_1G GRAVITY_MSS / AcceMax_1G
-#define One_G_TO_Accel AcceMax_1G / GRAVITY_MSS
-#define One_G_TO_Accel AcceMax_1G / GRAVITY_MSS
+//b0 0.23	b1 -0.17	b2 0.38	k0 1.00	k1 1.00	k2 0.99
 
-// b00.00	b10.00	b20.00	k01.00	k11.00	k21.00
-// b00.00	b110.00	b220.00	k01.00	k111.00	k221.00
-//b00.24	b1-0.30	b20.21	k00.99	k11.00	k20.97
-// b00.26	b1-0.30	b20.21	k00.99	k11.00	k20.97
-float K[3] = {0.99, 11.0, 20.97}; //默认标度误差
-float B[3] = {0.26, -0.3, 20.21}; //默认零位误差
+float K[3] = {0.99f, 0.99f, 0.99f};  //默认标度误差
+float B[3] = {0.23f, -0.16f, 0.38f}; //默认零位误差
 
 //初始化MPU6050
 //返回值:0,成功
@@ -31,11 +23,13 @@ u8 MPU_Init(void)
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); //唤醒MPU6050
 	MPU_Set_Gyro_Fsr(3);					 //陀螺仪传感器,±1000dps///参数为3的话为±2000
 	MPU_Set_Accel_Fsr(2);					 //加速度传感器,±8g
-	MPU_Set_Rate(300);						 //设置采样率300Hz
+	MPU_Set_Rate(600);						 //设置采样率300Hz
 	MPU_Write_Byte(MPU_INT_EN_REG, 0X00);	//关闭所有中断
 	MPU_Write_Byte(MPU_USER_CTRL_REG, 0X00); //I2C主模式关闭
 	MPU_Write_Byte(MPU_FIFO_EN_REG, 0X00);   //关闭FIFO
 	MPU_Write_Byte(MPU_INTBP_CFG_REG, 0X80); //INT引脚低电平有效
+	// MPU_Set_LPF(15);						 //滤波器
+
 	res = MPU_Read_Byte(MPU_DEVICE_ID_REG);
 	if (res == MPU_ADDR) //器件ID正确
 	{
@@ -54,6 +48,8 @@ u8 MPU_Init(void)
 	MPU_GYRO.gyrox_offset = 641;
 	MPU_GYRO.gyroy_offset = 5;
 	MPU_GYRO.gyroz_offset = 23;
+
+	//b01.03	b1-0.16	b20.17	k00.99	k10.99	k20.99
 
 	MPU_ACC.accx_offset = 455;
 	MPU_ACC.accy_offset = -130;
@@ -145,6 +141,11 @@ u8 MPU_Get_Gyroscope(short *gx, short *gy, short *gz)
 	MPU_GYRO.gyrox = temp_gx - MPU_GYRO.gyrox_offset;
 	MPU_GYRO.gyroy = temp_gy - MPU_GYRO.gyroy_offset;
 	MPU_GYRO.gyroz = temp_gz - MPU_GYRO.gyroz_offset;
+
+	MPU_GYRO.gyrox = MPU_GYRO.gyrox;
+	MPU_GYRO.gyroy = -MPU_GYRO.gyroy;
+	MPU_GYRO.gyroz = -MPU_GYRO.gyroz;
+
 	return res;
 }
 //得到加速度值(原始值)
@@ -163,12 +164,14 @@ u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 		temp_az = ((u16)buf[4] << 8) | buf[5];
 	}
 
-	// MPU_ACC.accx = K[0] * temp_ax - B[0] * One_G_TO_Accel; //六面校准得出的K、B值在这里用到
-	// MPU_ACC.accy = K[1] * temp_ay - B[1] * One_G_TO_Accel;
-	// MPU_ACC.accz = K[2] * temp_az - B[2] * One_G_TO_Accel;
-	MPU_ACC.accx = temp_ax - MPU_ACC.accx_offset;
-	MPU_ACC.accy = temp_ay - MPU_ACC.accy_offset;
-	MPU_ACC.accz = temp_az - MPU_ACC.accz_offset;
+	MPU_ACC.accx = K[0] * temp_ax - B[0] * One_G_TO_Accel; //六面校准得出的K、B值在这里用到
+	MPU_ACC.accy = K[1] * temp_ay - B[1] * One_G_TO_Accel;
+	MPU_ACC.accz = K[2] * temp_az - B[2] * One_G_TO_Accel;
+	// MPU_ACC.accx = temp_ax - MPU_ACC.accx_offset;
+	// MPU_ACC.accy = temp_ay - MPU_ACC.accy_offset;
+	// MPU_ACC.accz = temp_az - MPU_ACC.accz_offset;
+
+	MPU_ACC.accx = -MPU_ACC.accx;
 	return res;
 }
 //IIC连续写
@@ -310,7 +313,7 @@ void Gyro_Calibartion(void)
 			LastGyro[2] = temp_gz;
 		} while ((ErrorGyro[0] > MAX_GYRO_QUIET) || (ErrorGyro[0] < MIN_GYRO_QUIET) || (ErrorGyro[1] > MAX_GYRO_QUIET) || (ErrorGyro[1] < MIN_GYRO_QUIET) || (ErrorGyro[2] > MAX_GYRO_QUIET) || (ErrorGyro[2] < MIN_GYRO_QUIET));
 	}
-	for (i = 0; i < 100; i++) //连续采样100次，一共耗时100*3=300ms
+	for (i = 0; i < 200; i++) //连续采样100次，一共耗时200*5=1000ms
 	{
 		delay_ms(5);
 		res = MPU_Read_Len(MPU_ADDR, MPU_GYRO_XOUTH_REG, 6, buf);
@@ -324,16 +327,15 @@ void Gyro_Calibartion(void)
 		g_Gyro_yoffset += temp_gy;
 		g_Gyro_zoffset += temp_gz;
 	}
-	MPU_GYRO.gyrox_offset = g_Gyro_xoffset / 100; //得到静态偏移值//采集了100组做平均
-	MPU_GYRO.gyroy_offset = g_Gyro_yoffset / 100;
-	MPU_GYRO.gyroz_offset = g_Gyro_zoffset / 100;
+	MPU_GYRO.gyrox_offset = g_Gyro_xoffset / 200; //得到静态偏移值//采集了100组做平均
+	MPU_GYRO.gyroy_offset = g_Gyro_yoffset / 200;
+	MPU_GYRO.gyroz_offset = g_Gyro_zoffset / 200;
 	printf("gxoff:%d\tgyoff:%d\tgzoff:%d\n", MPU_GYRO.gyrox_offset, MPU_GYRO.gyroy_offset, MPU_GYRO.gyroz_offset);
 }
 
 //加速度计六面校准
 void Acc_Calibartion(void)
 {
-	uint8_t k = 30;
 	int32_t ACC_xoffset = 0, ACC_yoffset = 0, ACC_zoffset = 0;
 
 	short temp_gx, temp_gy, temp_gz;
@@ -356,7 +358,7 @@ void Acc_Calibartion(void)
 	}
 	MPU_ACC.accx_offset = ACC_xoffset / 100; //得到静态偏移值//采集了100组做平均
 	MPU_ACC.accy_offset = ACC_yoffset / 100;
-	MPU_ACC.accz_offset = ACC_zoffset / 100 - 4014;
+	MPU_ACC.accz_offset = ACC_zoffset / 100 - 4096;
 	printf("gxoff:%d\tgyoff:%d\tgzoff:%d\n", MPU_ACC.accx_offset, MPU_ACC.accy_offset, MPU_ACC.accz_offset);
 }
 
@@ -407,6 +409,9 @@ void get_yuanshi_acc(void) //读取原始ACC,并且滤波
 	MPU_ACC.accx = temp_ax;
 	MPU_ACC.accy = temp_ay;
 	MPU_ACC.accz = temp_az;
+
+	MPU_ACC.accx = -MPU_ACC.accx;
+
 	// ACC_IMU_Filter();
 	// printf("x:%d\ty:%d\tz:%d\n", MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz);
 	delay_ms(10);
@@ -595,7 +600,7 @@ void Accel_six_Calibartion(void)
 
 	/*************开始校准*******************/
 	//第一次点校准，正面（有元器件的）垂直朝上
-	printf("first cal\n");
+	printf("first cal zhengmian\n");
 	delay_x_ms(5);
 	for (sample_num = 0; sample_num < 200; sample_num++)
 	{
@@ -614,8 +619,8 @@ void Accel_six_Calibartion(void)
 	printf("x:%.2f\ty:%.2f\tz:%.2f\n\n", acce_sample[0].x, acce_sample[0].y, acce_sample[0].z);
 	delay_ms(1000);
 
-	//第二次点校准，有排针的一边垂直朝上
-	printf("second cal\n");
+	//第二次点校准，鸡头朝上
+	printf("second cal head up\n");
 	delay_x_ms(5);
 	for (sample_num = 0; sample_num < 200; sample_num++)
 	{
@@ -634,8 +639,8 @@ void Accel_six_Calibartion(void)
 	printf("x:%.2f\ty:%.2f\tz:%.2f\n\n", acce_sample[1].x, acce_sample[1].y, acce_sample[1].z);
 	delay_ms(1000);
 
-	//第三次校准,与有排针对立的那边没排针的垂直朝上
-	printf("third cal\n");
+	//第三次校准//左侧朝上
+	printf("third cal left up\n");
 	delay_x_ms(5);
 	for (sample_num = 0; sample_num < 200; sample_num++)
 	{
@@ -654,8 +659,8 @@ void Accel_six_Calibartion(void)
 	printf("x:%.2f\ty:%.2f\tz:%.2f\n\n", acce_sample[2].x, acce_sample[2].y, acce_sample[2].z);
 	delay_ms(1000);
 
-	//第四次点校准，机尾垂直朝上
-	printf("four cal\n");
+	//第四次点校准，右侧朝上
+	printf("four cal right up\n");
 	delay_x_ms(5);
 	//读加速度数据
 	for (sample_num = 0; sample_num < 200; sample_num++)
@@ -675,8 +680,8 @@ void Accel_six_Calibartion(void)
 	printf("x:%.2f\ty:%.2f\tz:%.2f\n\n", acce_sample[3].x, acce_sample[3].y, acce_sample[3].z);
 	delay_ms(1000);
 
-	//第五次点校准，背面没元器件的垂直朝上，
-	printf("five cal\n");
+	//第五次点校准，机尾朝上
+	printf("five cal tail up\n");
 	delay_x_ms(5);
 	for (sample_num = 0; sample_num < 200; sample_num++)
 	{
@@ -695,8 +700,8 @@ void Accel_six_Calibartion(void)
 	printf("x:%.2f\ty:%.2f\tz:%.2f\n\n", acce_sample[4].x, acce_sample[4].y, acce_sample[4].z);
 	delay_ms(1000);
 
-	//第六次点校准，进入第六面校准,jitouchaoshang
-	printf("six cal\n");
+	//第六次点校准，背面朝上
+	printf("six cal back up\n");
 	delay_x_ms(5);
 	ACC_IMU_Filter();
 	for (sample_num = 0; sample_num < 200; sample_num++)
@@ -725,7 +730,13 @@ void Accel_six_Calibartion(void)
 		K[1] = new_scales.y;
 		K[2] = new_scales.z;
 	}
-	printf("b0%.2f\tb1%.2f\tb2%.2f\tk0%.2f\tk1%.2f\tk2%.2f\n", B[0], B[1], B[2], K[0], K[1], K[2]);
+	printf("b0 %.2f\tb1 %.2f\tb2 %.2f\tk0 %.2f\tk1 %.2f\tk2 %.2f\n", B[0], B[1], B[2], K[0], K[1], K[2]);
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+	delay_ms(1000);
+
 	// b00.00	b10.00	b20.00	k01.00	k11.00	k21.00
 }
 

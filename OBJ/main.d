@@ -39,6 +39,7 @@
 ..\obj\main.o: ..\HAL\data_process.h
 ..\obj\main.o: ..\MATH\kalman.h
 ..\obj\main.o: ..\HARDWARE\TIMER\timer.h
+..\obj\main.o: ..\HARDWARE\LED\led.h
 ..\obj\main.o: ..\MATH\IMU.h
 ..\obj\main.o: ..\HAL\ANO_USART.h
 ..\obj\main.o: ..\HARDWARE\RC\rc_process.h
@@ -58,4 +59,3 @@
 ..\obj\main.o: ..\HAL\control.h
 ..\obj\main.o: ..\HAL\pid.h
 ..\obj\main.o: ..\HARDWARE\ST_FLASH\stflash.h
-..\obj\main.o: ..\HARDWARE\LED\led.h

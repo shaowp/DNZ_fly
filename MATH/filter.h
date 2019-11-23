@@ -1,32 +1,77 @@
 #ifndef __FILTER_H__
 #define __FILTER_H__
+#include "sys.h"
 
 
-#define Pi 3.1415926
-//卡尔曼噪声参数
-#define dt 0.015
-#define R_angle 0.5
-#define Q_angle 0.001
-#define Q_gyro 0.003 //越大越滞后
 
-//引用外部变量
-extern short aacx, aacy, aacz;	//加速度传感器原始数据
-extern short gyrox, gyroy, gyroz; //陀螺仪原始数据
+/*******************************************************************/
+//正点原子低通滤波
+typedef struct rateLimitFilter_s {
+    float state;
+} rateLimitFilter_t;
 
-extern float Angle_X_Final; //X最终倾斜角度
-extern float Angle_Y_Final; //Y最终倾斜角度
-extern float Angle_Z_Final; //Z最终倾斜角度
-extern float Angle_x_temp; //X最终倾斜角度
-extern float Angle_y_temp; //Y最终倾斜角度
-extern float Angle_z_temp; //Z最终倾斜角度
+typedef struct pt1Filter_s {
+    float state;
+    float RC;
+    float dT;
+} pt1Filter_t;
 
-double KalmanFilter(const double ResrcData, double ProcessNiose_Q, double MeasureNoise_R);
-void Angle_Calcu(void);
-void Kalman_Filter_X(float Accel, float Gyro);
-void Kalman_Filter_Y(float Accel, float Gyro);
-void Kalman_Filter_Z(float Accel, float Gyro);
-void yijiehubu_P(float angle_m, float gyro_m);
-void erjiehubu_P(float angle_m, float gyro_m);
-void Erjielvbo(float angle_m, float gyro_m);
+/* this holds the data required to update samples thru a filter */
+typedef struct biquadFilter_s {
+    float b0, b1, b2, a1, a2;
+    float d1, d2;
+} biquadFilter_t;
+
+typedef enum {
+    FILTER_PT1 = 0,
+    FILTER_BIQUAD,
+    FILTER_FIR,
+} filterType_e;
+
+typedef enum {
+    FILTER_LPF,
+    FILTER_NOTCH
+} biquadFilterType_e;
+
+typedef struct firFilter_s {
+    float *buf;
+    const float *coeffs;
+    uint8_t bufLength;
+    uint8_t coeffsLength;
+} firFilter_t;
+
+
+float pt1FilterApply(pt1Filter_t *filter, float input);
+float pt1FilterApply4(pt1Filter_t *filter, float input, uint16_t f_cut, float dt);
+void pt1FilterReset(pt1Filter_t *filter, float input);
+
+void rateLimitFilterInit(rateLimitFilter_t *filter);
+float rateLimitFilterApply4(rateLimitFilter_t *filter, float input, float rate_limit, float dT);
+
+void biquadFilterInitNotch(biquadFilter_t *filter, uint16_t samplingFreq, uint16_t filterFreq, uint16_t cutoffHz);
+void biquadFilterInitLPF(biquadFilter_t *filter, uint16_t samplingFreq, uint16_t filterFreq);
+void biquadFilterInit(biquadFilter_t *filter, uint16_t samplingFreq, uint16_t filterFreq, float Q, biquadFilterType_e filterType);
+float biquadFilterApply(biquadFilter_t *filter, float sample);
+float filterGetNotchQ(uint16_t centerFreq, uint16_t cutoff);
+
+void firFilterInit(firFilter_t *filter, float *buf, uint8_t bufLength, const float *coeffs);
+void firFilterInit2(firFilter_t *filter, float *buf, uint8_t bufLength, const float *coeffs, uint8_t coeffsLength);
+void firFilterUpdate(firFilter_t *filter, float input);
+float firFilterApply(const firFilter_t *filter);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

@@ -30,3 +30,4 @@
 ..\obj\timer.o: ..\STM32F10x_FWLib\inc\stm32f10x_usart.h
 ..\obj\timer.o: ..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h
 ..\obj\timer.o: ..\STM32F10x_FWLib\inc\misc.h
+..\obj\timer.o: ..\HARDWARE\LED\led.h

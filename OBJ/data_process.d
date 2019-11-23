@@ -38,3 +38,7 @@
 ..\obj\data_process.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\data_process.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\obj\data_process.o: ..\HARDWARE\AK8975\AK8975.h
+..\obj\data_process.o: ..\MATH\filter.h
+..\obj\data_process.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\obj\data_process.o: I:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\data_process.o: ..\MATH\IMU.h

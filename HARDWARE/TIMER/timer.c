@@ -142,3 +142,58 @@ void TIM2_PWM_Init(u16 arr, u16 psc) //PWM的输出
 	TIM_ARRPreloadConfig(TIM2, ENABLE); // 使能TIM2重载寄存器ARR
 	TIM_Cmd(TIM2, ENABLE);				//使能定时器2
 }
+
+
+
+//系统运行时间定时器
+void TIM3_Int_Init(u16 arr, u16 psc)
+{
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //时钟使能
+
+	//定时器TIM1初始化
+	TIM_TimeBaseStructure.TIM_Period = arr;						//设置在下一个更新事件装入活动的自动重装载寄存器周期的值
+	TIM_TimeBaseStructure.TIM_Prescaler = psc;					//设置用来作为TIMx时钟频率除数的预分频值
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;				//设置时钟分割:TDTS = Tck_tim
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //TIM向上计数模式
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);				//根据指定的参数初始化TIMx的时间基数单位
+
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;			  //TIM3中断
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //先占优先级2级
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		  //从优先级0级
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			  //IRQ通道被使能
+	NVIC_Init(&NVIC_InitStructure);							  //根据NVIC_InitStruct中指定的参数初始化外设NVIC寄存器
+
+	TIM_Cmd(TIM3, ENABLE);						//
+	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE); //使能指定的TIM1中断,允许更新中断
+}
+
+//TIM3 定时器中断，计数系统运行时间的
+u32 system_time;
+void TIM3_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) //检查TIM3更新中断是否发生
+	{
+		system_time += 1;
+		LED0 = !LED0;
+		// printf("get time %d\n", system_time);
+		TIM_ClearITPendingBit(TIM3, TIM_IT_Update); //清楚TIM3更新中断标志
+													//USART_SendData(USART1, TIM2CH1_COUNT);
+	}
+}
+
+//获取系统运行时间
+//返回的单位是ms*10;
+u32 get_system_time(void)
+{
+
+	return ((system_time * 50000) + (TIM3->CNT));
+}
+
+
+
+
+
+
+

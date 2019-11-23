@@ -1,265 +1,192 @@
-
 #include "filter.h"
 #include "math.h"
-#include "include.h"
-float Accel_x; //X轴加速度值暂存
-float Accel_y; //Y轴加速度值暂存
-float Accel_z; //Z轴加速度值暂存
+#include "maths.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 
-float Gyro_x; //X轴陀螺仪数据暂存
-float Gyro_y; //Y轴陀螺仪数据暂存
-float Gyro_z; //Z轴陀螺仪数据暂存
+/********************************************************************************	 
+ * 本程序只供学习使用，未经作者许可，不得用于其它任何用途
+ * ATKflight飞控固件
+ * 滤波功能函数	
+ * 正点原子@ALIENTEK
+ * 技术论坛:www.openedv.com
+ * 创建日期:2018/5/2
+ * 版本：V1.0
+ * 版权所有，盗版必究。
+ * Copyright(C) 广州市星翼电子科技有限公司 2014-2024
+ * All rights reserved
+********************************************************************************/
 
-//float Angle_gy;    //由角速度计算的倾斜角度
-float Angle_x_temp; //由加速度计算的x倾斜角度
-float Angle_y_temp; //由加速度计算的y倾斜角度
-float Angle_z_temp;
+#define BIQUAD_BANDWIDTH 1.9f		/* bandwidth in octaves */
+#define BIQUAD_Q 1.0f / sqrtf(2.0f) /* quality factor - butterworth*/
 
-float Angle_X_Final; //X最终倾斜角度
-float Angle_Y_Final; //Y最终倾斜角度
-float Angle_Z_Final; //Z最终倾斜角度
-
-//卡尔曼参数
-char C_0 = 1;
-float Q_bias_x, Q_bias_y, Q_bias_z;
-float Angle_err_x, Angle_err_y, Angle_err_z;
-float PCt_0, PCt_1, E;
-float K_0, K_1, t_0, t_1;
-float Pdot[4] = {0, 0, 0, 0};
-float PP[2][2] = {{1, 0}, {0, 1}};
-
-double KalmanFilter(const double ResrcData, double ProcessNiose_Q, double MeasureNoise_R)
+//一阶低通滤波器
+// f_cut = cutoff frequency
+void pt1FilterInit(pt1Filter_t *filter, uint8_t f_cut, float dT)
 {
-	double R = MeasureNoise_R;
-	double Q = ProcessNiose_Q;
-	static double x_last;
-	double x_mid = x_last;
-	double x_now;
-	static double p_last;
-	double p_mid;
-	double p_now;
-	double kg;
-	x_mid = x_last;							  //x_last=x(k-1|k-1),x_mid=x(k|k-1)
-	p_mid = p_last + Q;						  //p_mid=p(k|k-1),p_last=p(k-1|k-1),Q=噪声
-	kg = p_mid / (p_mid + R);				  //kg=kalman filter,R=噪声
-	x_now = x_mid + kg * (ResrcData - x_mid); //估最优值
-	p_now = (1 - kg) * p_mid;				  //最优值对应的covariance
-	p_last = p_now;							  //更新covariance值
-	x_last = x_now;							  //更新系统状态值
-	return x_now;
+	filter->RC = 1.0f / (2.0f * M_PIf * f_cut);
+	filter->dT = dT;
 }
 
-//角度计算
-void Angle_Calcu(void)
+float pt1FilterApply(pt1Filter_t *filter, float input)
 {
-	//范围为2g时，换算关系：16384 LSB/g
-	//deg = rad*180/3.14
-	float x = 0, y = 0, z = 0;
-
-	Accel_x = MPU6050_Raw_data.accx; //x轴加速度值暂存
-	Accel_y = MPU6050_Raw_data.accy; //y轴加速度值暂存
-	Accel_z = MPU6050_Raw_data.accz; //z轴加速度值暂存
-	Gyro_x = MPU6050_Raw_data.gyrox; //x轴陀螺仪值暂存
-	Gyro_y = MPU6050_Raw_data.gyroy; //y轴陀螺仪值暂存
-	Gyro_z = MPU6050_Raw_data.gyroz; //z轴陀螺仪值暂存
-
-	//处理x轴加速度
-
-	//用加速度计算三个轴和水平面坐标系之间的夹角
-	Angle_x_temp = (atan2(x, z)) * 180 / Pi;
-	Angle_y_temp = (atan2(y, z)) * 180 / Pi;
-	Angle_z_temp = (atan2(y, x)) * 180 / Pi;
-
-	//角度的正负号
-	Gyro_y = -Gyro_y / 131.00;
-	Gyro_y = -Gyro_y / 131.00;
-	Gyro_y = -Gyro_y / 131.00;
-	//角速度
-	//向前运动
-	if (Gyro_x < 32768)
-		Gyro_x = -(Gyro_x / 16.4); //范围为1000deg/s时，换算关系：16.4 LSB/(deg/s)
-	//向后运动
-	if (Gyro_x > 32768)
-		Gyro_x = +(65535 - Gyro_x) / 16.4;
-	//向前运动
-	if (Gyro_y < 32768)
-		Gyro_y = -(Gyro_y / 16.4); //范围为1000deg/s时，换算关系：16.4 LSB/(deg/s)
-	//向后运动
-	if (Gyro_y > 32768)
-		Gyro_y = +(65535 - Gyro_y) / 16.4;
-	//向前运动
-	if (Gyro_z < 32768)
-		Gyro_z = -(Gyro_z / 16.4); //范围为1000deg/s时，换算关系：16.4 LSB/(deg/s)
-	//向后运动
-	if (Gyro_z > 32768)
-		Gyro_z = +(65535 - Gyro_z) / 16.4;
-
-	//Angle_gy = Angle_gy + Gyro_y*0.025;  //角速度积分得到倾斜角度.越大积分出来的角度越大
-	//Kalman_Filter_X(Angle_x_temp, Gyro_x); //卡尔曼滤波计算X倾角
-	//	yijiehubu_P(Angle_x_temp, Gyro_x);
-	Erjielvbo(Angle_x_temp, Gyro_x);
-	// printf("%f\n",Gyro_x);
-	// Erjielvbo(Angle_y_temp, Gyro_y);
-	// Erjielvbo(Angle_z_temp, Gyro_z);
-	// Kalman_Filter_Y(Angle_y_temp, Gyro_y); //卡尔曼滤波计算Y倾角
-	// Kalman_Filter_Z(Angle_z_temp, Gyro_z); //卡尔曼滤波计算Y倾角
-
-	pitch = Angle_Y_Final;
-	roll = Angle_X_Final;
-	yaw = Angle_Z_Final;
+	filter->state = filter->state + filter->dT / (filter->RC + filter->dT) * (input - filter->state);
+	return filter->state;
 }
 
-void Kalman_Filter_X(float Accel, float Gyro) //卡尔曼函数
+float pt1FilterApply4(pt1Filter_t *filter, float input, uint16_t f_cut, float dT)
 {
-	Angle_X_Final += (Gyro - Q_bias_x) * dt; //先验估计
+	// Pre calculate and store RC
+	if (!filter->RC)
+	{
+		filter->RC = 1.0f / (2.0f * M_PIf * f_cut);
+	}
 
-	Pdot[0] = Q_angle - PP[0][1] - PP[1][0]; // Pk-先验估计误差协方差的微分
-
-	Pdot[1] = -PP[1][1];
-	Pdot[2] = -PP[1][1];
-	Pdot[3] = Q_gyro;
-
-	PP[0][0] += Pdot[0] * dt; // Pk-先验估计误差协方差微分的积分
-	PP[0][1] += Pdot[1] * dt; // =先验估计误差协方差
-	PP[1][0] += Pdot[2] * dt;
-	PP[1][1] += Pdot[3] * dt;
-
-	Angle_err_x = Accel - Angle_X_Final; //zk-先验估计
-
-	PCt_0 = C_0 * PP[0][0];
-	PCt_1 = C_0 * PP[1][0];
-
-	E = R_angle + C_0 * PCt_0;
-
-	K_0 = PCt_0 / E;
-	K_1 = PCt_1 / E;
-
-	t_0 = PCt_0;
-	t_1 = C_0 * PP[0][1];
-
-	PP[0][0] -= K_0 * t_0; //后验估计误差协方差
-	PP[0][1] -= K_0 * t_1;
-	PP[1][0] -= K_1 * t_0;
-	PP[1][1] -= K_1 * t_1;
-
-	Angle_X_Final += K_0 * Angle_err_x; //后验估计
-	Q_bias_x += K_1 * Angle_err_x;		//后验估计
-	Gyro_x = Gyro - Q_bias_x;			//输出值(后验估计)的微分=角速度
+	filter->dT = dT; // cache latest dT for possible use in pt1FilterApply
+	filter->state = filter->state + dT / (filter->RC + dT) * (input - filter->state);
+	return filter->state;
 }
 
-void Kalman_Filter_Y(float Accel, float Gyro) //卡尔曼函数
+void pt1FilterReset(pt1Filter_t *filter, float input)
 {
-	Angle_Y_Final += (Gyro - Q_bias_y) * dt; //先验估计
-
-	Pdot[0] = Q_angle - PP[0][1] - PP[1][0]; // Pk-先验估计误差协方差的微分
-
-	Pdot[1] = -PP[1][1];
-	Pdot[2] = -PP[1][1];
-	Pdot[3] = Q_gyro;
-
-	PP[0][0] += Pdot[0] * dt; // Pk-先验估计误差协方差微分的积分
-	PP[0][1] += Pdot[1] * dt; // =先验估计误差协方差
-	PP[1][0] += Pdot[2] * dt;
-	PP[1][1] += Pdot[3] * dt;
-
-	Angle_err_y = Accel - Angle_Y_Final; //zk-先验估计
-
-	PCt_0 = C_0 * PP[0][0];
-	PCt_1 = C_0 * PP[1][0];
-
-	E = R_angle + C_0 * PCt_0;
-
-	K_0 = PCt_0 / E;
-	K_1 = PCt_1 / E;
-
-	t_0 = PCt_0;
-	t_1 = C_0 * PP[0][1];
-
-	PP[0][0] -= K_0 * t_0; //后验估计误差协方差
-	PP[0][1] -= K_0 * t_1;
-	PP[1][0] -= K_1 * t_0;
-	PP[1][1] -= K_1 * t_1;
-
-	Angle_Y_Final += K_0 * Angle_err_y; //后验估计
-	Q_bias_y += K_1 * Angle_err_y;		//后验估计
-	Gyro_y = Gyro - Q_bias_y;			//输出值(后验估计)的微分=角速度
+	filter->state = input;
 }
 
-void Kalman_Filter_Z(float Accel, float Gyro) //卡尔曼函数
+// rate_limit = maximum rate of change of the output value in units per second
+void rateLimitFilterInit(rateLimitFilter_t *filter)
 {
-	Angle_Z_Final += (Gyro - Q_bias_z) * dt; //先验估计
-
-	Pdot[0] = Q_angle - PP[0][1] - PP[1][0]; // Pk-先验估计误差协方差的微分
-
-	Pdot[1] = -PP[1][1];
-	Pdot[2] = -PP[1][1];
-	Pdot[3] = Q_gyro;
-
-	PP[0][0] += Pdot[0] * dt; // Pk-先验估计误差协方差微分的积分
-	PP[0][1] += Pdot[1] * dt; // =先验估计误差协方差
-	PP[1][0] += Pdot[2] * dt;
-	PP[1][1] += Pdot[3] * dt;
-
-	Angle_err_z = Accel - Angle_Z_Final; //zk-先验估计
-
-	PCt_0 = C_0 * PP[0][0];
-	PCt_1 = C_0 * PP[1][0];
-
-	E = R_angle + C_0 * PCt_0;
-
-	K_0 = PCt_0 / E;
-	K_1 = PCt_1 / E;
-
-	t_0 = PCt_0;
-	t_1 = C_0 * PP[0][1];
-
-	PP[0][0] -= K_0 * t_0; //后验估计误差协方差
-	PP[0][1] -= K_0 * t_1;
-	PP[1][0] -= K_1 * t_0;
-	PP[1][1] -= K_1 * t_1;
-
-	Angle_Z_Final += K_0 * Angle_err_z; //后验估计
-	Q_bias_z += K_1 * Angle_err_z;		//后验估计
-	Gyro_z = Gyro - Q_bias_z;			//输出值(后验估计)的微分=角速度
+	filter->state = 0;
 }
 
-float angle_P, angle_R;
-float A_P, A_R, A2_P;
-
-void yijiehubu_P(float angle_m, float gyro_m)
+float rateLimitFilterApply4(rateLimitFilter_t *filter, float input, float rate_limit, float dT)
 {
-	float K1 = 0.09;
-	float d = 0.01;
-	angle_P = K1 * angle_m + (1 - K1) * (angle_P + gyro_m * d);
-	A_P = angle_P;
+	if (rate_limit > 0)
+	{
+		const float rateLimitPerSample = rate_limit * dT;
+		filter->state = constrainf(input, filter->state - rateLimitPerSample, filter->state + rateLimitPerSample);
+	}
+	else
+	{
+		filter->state = input;
+	}
+
+	return filter->state;
 }
 
-void erjiehubu_P(float angle_m, float gyro_m)
+float filterGetNotchQ(uint16_t centerFreq, uint16_t cutoff)
 {
-	float K = 0.05;
-	float y1;
-	float x2;
-	float x1 = (angle_m - angle_P) * K * K;
-	y1 = y1 + x1 * dt;
-	x2 = y1 + 2 * K * (angle_m - angle_P) + gyro_m;
-	angle_P = angle_P + x2 * dt;
-	A_P = angle_P;
-	Angle_X_Final = angle_P;
+	const float octaves = log2f((float)centerFreq / (float)cutoff) * 2;
+	return sqrtf(powf(2, octaves)) / (powf(2, octaves) - 1);
 }
 
-float K2 = 0.2;
-float x1, x2, y1;
-float angle2;
-
-void Erjielvbo(float angle_m, float gyro_m)
+//二阶陷波器
+void biquadFilterInitNotch(biquadFilter_t *filter, uint16_t samplingFreq, uint16_t filterFreq, uint16_t cutoffHz)
 {
-	x1 = (angle_m - angle2) * (1 - K2) * (1 - K2);
+	float Q = filterGetNotchQ(filterFreq, cutoffHz);
+	biquadFilterInit(filter, samplingFreq, filterFreq, Q, FILTER_NOTCH);
+}
 
-	y1 = y1 + x1 * dt;
+//二阶低通滤波器
+void biquadFilterInitLPF(biquadFilter_t *filter, uint16_t samplingFreq, uint16_t filterFreq)
+{
+	biquadFilterInit(filter, samplingFreq, filterFreq, BIQUAD_Q, FILTER_LPF);
+}
 
-	x2 = y1 + 2 * (1 - K2) * (angle_m - angle2) + gyro_m;
+//二阶滤波器
+void biquadFilterInit(biquadFilter_t *filter, uint16_t samplingFreq, uint16_t filterFreq, float Q, biquadFilterType_e filterType)
+{
+	// Check for Nyquist frequency and if it's not possible to initialize filter as requested - set to no filtering at all
+	if (filterFreq < (samplingFreq / 2))
+	{
+		// setup variables
+		const float sampleRate = samplingFreq;
+		const float omega = 2.0f * M_PIf * ((float)filterFreq) / sampleRate;
+		const float sn = sin_approx(omega);
+		const float cs = cos_approx(omega);
+		const float alpha = sn / (2 * Q);
 
-	angle2 = angle2 + x2 * dt;
-	printf("x2 %f\n", angle2);
-	Angle_X_Final = angle_P;
+		float b0, b1, b2;
+		switch (filterType)
+		{
+		case FILTER_LPF:
+			b0 = (1 - cs) / 2;
+			b1 = 1 - cs;
+			b2 = (1 - cs) / 2;
+			break;
+		case FILTER_NOTCH:
+			b0 = 1;
+			b1 = -2 * cs;
+			b2 = 1;
+			break;
+		}
+		const float a0 = 1 + alpha;
+		const float a1 = -2 * cs;
+		const float a2 = 1 - alpha;
+
+		// precompute the coefficients
+		filter->b0 = b0 / a0;
+		filter->b1 = b1 / a0;
+		filter->b2 = b2 / a0;
+		filter->a1 = a1 / a0;
+		filter->a2 = a2 / a0;
+	}
+	else
+	{
+		// Not possible to filter frequencies above Nyquist frequency - passthrough
+		filter->b0 = 1.0f;
+		filter->b1 = 0.0f;
+		filter->b2 = 0.0f;
+		filter->a1 = 0.0f;
+		filter->a2 = 0.0f;
+	}
+
+	// zero initial samples
+	filter->d1 = filter->d2 = 0;
+}
+
+// Computes a biquad_t filter on a sample
+float biquadFilterApply(biquadFilter_t *filter, float input)
+{
+	const float result = filter->b0 * input + filter->d1;
+	filter->d1 = filter->b1 * input - filter->a1 * result + filter->d2;
+	filter->d2 = filter->b2 * input - filter->a2 * result;
+	return result;
+}
+
+/*
+ * FIR filter
+ */
+void firFilterInit2(firFilter_t *filter, float *buf, uint8_t bufLength, const float *coeffs, uint8_t coeffsLength)
+{
+	filter->buf = buf;
+	filter->bufLength = bufLength;
+	filter->coeffs = coeffs;
+	filter->coeffsLength = coeffsLength;
+	memset(filter->buf, 0, sizeof(float) * filter->bufLength);
+}
+
+/*
+ * FIR filter initialisation
+ * If FIR filter is just used for averaging, coeffs can be set to NULL
+ */
+void firFilterInit(firFilter_t *filter, float *buf, uint8_t bufLength, const float *coeffs)
+{
+	firFilterInit2(filter, buf, bufLength, coeffs, bufLength);
+}
+
+void firFilterUpdate(firFilter_t *filter, float input)
+{
+	memmove(&filter->buf[1], &filter->buf[0], (filter->bufLength - 1) * sizeof(float));
+	filter->buf[0] = input;
+}
+
+float firFilterApply(const firFilter_t *filter)
+{
+	float ret = 0.0f;
+	for (int ii = 0; ii < filter->coeffsLength; ++ii)
+	{
+		ret += filter->coeffs[ii] * filter->buf[ii];
+	}
+	return ret;
 }

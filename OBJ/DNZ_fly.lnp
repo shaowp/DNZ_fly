@@ -24,6 +24,8 @@
 "..\obj\stm32f10x_exti.o"
 "..\obj\kalman.o"
 "..\obj\imu.o"
+"..\obj\filter.o"
+"..\obj\maths.o"
 "..\obj\data_process.o"
 "..\obj\ano_usart.o"
 "..\obj\scheduler.o"

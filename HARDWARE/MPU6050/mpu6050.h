@@ -101,13 +101,18 @@ u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az);
 
 void Gyro_Calibartion(void);
 
-void Acc_Calibartion(void);				//简单的偏置校准
-void Accel_six_Calibartion(void);		//六面校准
+void Acc_Calibartion(void);		  //简单的偏置校准
+void Accel_six_Calibartion(void); //六面校准
 
 ////////////////////////////////////
 //////////////变量区////////////////
+#define AcceMax_1G 4095
+#define GRAVITY_MSS 9.80665f
+#define ACCEL_TO_1G GRAVITY_MSS / AcceMax_1G
+#define One_G_TO_Accel AcceMax_1G / GRAVITY_MSS
 
-
+extern float K[3]; //默认标度误差
+extern float B[3]; //默认零位误差
 
 typedef struct mpu_acc_data
 {

@@ -16,6 +16,7 @@ void Collect_Data(void);
 void Get_Attitude(void);
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 void Erjiehubu(float gx, float gy, float gz, float ax, float ay, float az);
+void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, float ay, float az);//四元数梯度下降法
 
 typedef struct
 {

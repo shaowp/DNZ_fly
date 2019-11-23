@@ -43,3 +43,5 @@
 ..\obj\scheduler.o: ..\HAL\ANO_USART.h
 ..\obj\scheduler.o: ..\HAL\control.h
 ..\obj\scheduler.o: ..\HAL\pid.h
+..\obj\scheduler.o: ..\HARDWARE\TIMER\timer.h
+..\obj\scheduler.o: ..\HARDWARE\LED\led.h

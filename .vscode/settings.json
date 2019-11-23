@@ -27,6 +27,7 @@
 		"array": "c",
 		"string": "c",
 		"platform_config.h": "c",
-		"stflash.h": "c"
+		"stflash.h": "c",
+		"led.h": "c"
 	}
 }
