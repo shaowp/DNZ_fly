@@ -44,26 +44,26 @@ int8_t AK8975_Init(void)
 	AK8975_MAG.y_gain = 1.0;
 	AK8975_MAG.z_gain = 1.0;
 
-	// B[0]	0.975454084181572
-	// B[1]	0.00806000616669667
-	// B[2]	-0.0119091414985016
-	// B[3]	0.985901401190494
-	// B[4]	0.00165710771775011
-	// B[5]	1.04004240346894
-	// MagOffset.x	0.275001639772076
-	// MagOffset.y	-0.28155495239433
-	// MagOffset.z	-0.233880795500522
+	// B[0]	0.978159800683319
+	// B[1]	0.0277336735007092
+	// B[2]	-0.00913877197069905
+	// B[3]	0.917252088924231
+	// B[4]	-0.00854149701920429
+	// B[5]	1.11567146041836
+	// MagOffset.x	0.171153105433637
+	// MagOffset.y	0.117689300951695
+	// MagOffset.z	0.441865692407673
 
-	AK8975_MAG.G_mx_offset = 0.275001639772076;
-	AK8975_MAG.G_my_offset = -0.28155495239433;
-	AK8975_MAG.G_mz_offset = -0.233880795500522;
+	AK8975_MAG.G_mx_offset = 0.171153105433637;
+	AK8975_MAG.G_my_offset = 0.117689300951695;
+	AK8975_MAG.G_mz_offset = 0.441865692407673;
 
-	AK8975_MAG.B0 = 0.975454084181572;
-	AK8975_MAG.B1 = 0.00806000616669667;
-	AK8975_MAG.B2 = -0.0119091414985016;
-	AK8975_MAG.B3 = 0.985901401190494;
-	AK8975_MAG.B4 = 0.00165710771775011;
-	AK8975_MAG.B5 = 1.04004240346894;
+	AK8975_MAG.B0 = 0.978159800683319;
+	AK8975_MAG.B1 = 0.0277336735007092;
+	AK8975_MAG.B2 = -0.00913877197069905;
+	AK8975_MAG.B3 = 0.917252088924231;
+	AK8975_MAG.B4 = -0.00854149701920429;
+	AK8975_MAG.B5 = 1.11567146041836;
 	delay_ms(10); //延时等待磁力计可用
 	return 0;	 //成功为0，返回0
 }
@@ -85,17 +85,18 @@ int8_t AK8975_Updata(void)
 	//原来的数据的单位是16位的，量程为±1229 ?T即 2458*10^-6 T =24.58G
 	//原始数据是13位，对应的量程为±1229，即原始数据需要 * 8192/2458 =xx ?T
 	//8192/24.58=333
-
-	//校准的时候需要
-	// G_mx = temp_mx / 341.0;
-	// G_my = temp_my / 341.0;
-	// G_mz = temp_mz / 341.0;
-	// printf("%f\t %f\t %f\n", G_mx, G_my, G_mz);
-
+// #define NEED_CAL_MAG
+#ifdef NEED_CAL_MAG
+	// 校准的时候需要
+	G_mx = temp_mx / 341.0;
+	G_my = temp_my / 341.0;
+	G_mz = temp_mz / 341.0;
+	printf("%f\t %f\t %f\n", G_mx, G_my, G_mz);
+#else
 	// //校准之后需要使用
-	G_mx = temp_mx / 333.0 - AK8975_MAG.G_mx_offset;
-	G_my = temp_my / 333.0 - AK8975_MAG.G_my_offset;
-	G_mz = temp_mz / 333.0 - AK8975_MAG.G_mz_offset;
+	G_mx = temp_mx / 341.0 - AK8975_MAG.G_mx_offset;
+	G_my = temp_my / 341.0 - AK8975_MAG.G_my_offset;
+	G_mz = temp_mz / 341.0 - AK8975_MAG.G_mz_offset;
 
 	// printf("%.2f\t %.2f\t %.2f\n", G_mx, G_my, G_mz);
 	AK8975_MAG.G_mx = AK8975_MAG.B0 * G_mx + AK8975_MAG.B1 * G_my + AK8975_MAG.B2 * G_mz;
@@ -103,9 +104,13 @@ int8_t AK8975_Updata(void)
 	AK8975_MAG.G_mz = AK8975_MAG.B2 * G_mx + AK8975_MAG.B4 * G_my + AK8975_MAG.B5 * G_mz;
 
 	//数据放到磁力计主数据
-	AK8975_MAG.mx = -AK8975_MAG.G_mx * 341.0; //特别注意方向，方向非常重要
+	AK8975_MAG.mx = AK8975_MAG.G_mx * 341.0; //特别注意方向，方向非常重要
 	AK8975_MAG.my = AK8975_MAG.G_my * 341.0;
 	AK8975_MAG.mz = AK8975_MAG.G_mz * 341.0;
+
+
+	
+#endif
 
 	MAG_Write_Byte(0x0A, 0x11); //0x10 16位模式  0x 01 单次测量模式		//14位 - 0.6uT/LSB      16位 - 0.15uT/LSB
 	return 0;

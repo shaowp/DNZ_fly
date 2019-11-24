@@ -3,9 +3,9 @@
 <title>Static Call Graph - [..\OBJ\DNZ_fly.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\DNZ_fly.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Fri Nov 22 21:26:10 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Sat Nov 23 20:52:36 2019
 <BR><P>
-<H3>Maximum Stack Usage =        440 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        528 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 TIM1_UP_IRQHandler &rArr; AHRSUpdate_GraDes_Delay_Corretion &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 <P>
@@ -381,7 +381,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AK8975_Updata
 </UL>
 
-<P><STRONG><a name="[a2]"></a>AK8975_Updata</STRONG> (Thumb, 490 bytes, Stack size 72 bytes, ak8975.o(.text))
+<P><STRONG><a name="[a2]"></a>AK8975_Updata</STRONG> (Thumb, 480 bytes, Stack size 72 bytes, ak8975.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = AK8975_Updata &rArr; MAG_Read_Len &rArr; SOFT_IIC_Read_Byte &rArr; SOFT_IIC_NAck &rArr; SOFT_IIC_Delay
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAG_Read_Len
@@ -1952,7 +1952,7 @@ Global Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cfcmple
 </UL>
 
-<P><STRONG><a name="[12e]"></a>IMUupdate</STRONG> (Thumb, 2832 bytes, Stack size 192 bytes, imu.o(.text), UNUSED)
+<P><STRONG><a name="[12e]"></a>IMUupdate</STRONG> (Thumb, 2958 bytes, Stack size 192 bytes, imu.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Q_rsqrt
 <LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
 <LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan2
@@ -1971,10 +1971,11 @@ Global Symbols
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
 
-<P><STRONG><a name="[132]"></a>AHRSUpdate_GraDes_Delay_Corretion</STRONG> (Thumb, 3178 bytes, Stack size 192 bytes, imu.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 384<LI>Call Chain = AHRSUpdate_GraDes_Delay_Corretion &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
+<P><STRONG><a name="[132]"></a>AHRSUpdate_GraDes_Delay_Corretion</STRONG> (Thumb, 5918 bytes, Stack size 272 bytes, imu.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 464<LI>Call Chain = AHRSUpdate_GraDes_Delay_Corretion &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Q_rsqrt
+<LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
 <LI><a href="#[135]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sin
 <LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cos
 <LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan2
@@ -2187,7 +2188,7 @@ Global Symbols
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fadd
 </UL>
 
-<P><STRONG><a name="[150]"></a>MAG_IMU_Filter</STRONG> (Thumb, 298 bytes, Stack size 48 bytes, data_process.o(.text))
+<P><STRONG><a name="[150]"></a>MAG_IMU_Filter</STRONG> (Thumb, 304 bytes, Stack size 48 bytes, data_process.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = MAG_IMU_Filter &rArr; atan2 &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;kalman_1
@@ -2210,7 +2211,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ACC_IMU_Filter_Queue_init
 </UL>
 
-<P><STRONG><a name="[84]"></a>ACC_IMU_Filter_Queue_init</STRONG> (Thumb, 108 bytes, Stack size 8 bytes, data_process.o(.text))
+<P><STRONG><a name="[84]"></a>ACC_IMU_Filter_Queue_init</STRONG> (Thumb, 106 bytes, Stack size 8 bytes, data_process.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = ACC_IMU_Filter_Queue_init &rArr; CreatQueue &rArr; malloc &rArr; __Heap_Full &rArr; __Heap_ProvideMemory &rArr; free
 </UL>
 <BR>[Calls]<UL><LI><a href="#[151]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CreatQueue
@@ -2371,8 +2372,8 @@ Global Symbols
 <LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EP1_OUT_Callback
 </UL>
 
-<P><STRONG><a name="[3c]"></a>TIM1_UP_IRQHandler</STRONG> (Thumb, 252 bytes, Stack size 56 bytes, scheduler.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 440<LI>Call Chain = TIM1_UP_IRQHandler &rArr; AHRSUpdate_GraDes_Delay_Corretion &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
+<P><STRONG><a name="[3c]"></a>TIM1_UP_IRQHandler</STRONG> (Thumb, 270 bytes, Stack size 64 bytes, scheduler.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 528<LI>Call Chain = TIM1_UP_IRQHandler &rArr; AHRSUpdate_GraDes_Delay_Corretion &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_GetITStatus
 <LI><a href="#[e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ClearITPendingBit
@@ -3721,7 +3722,8 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[1ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_dsqrt
 <LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
 </UL>
-<BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IMUupdate
+<BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AHRSUpdate_GraDes_Delay_Corretion
+<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IMUupdate
 <LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;asin
 </UL>
 

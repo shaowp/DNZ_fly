@@ -61,7 +61,8 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 
 		//梯度下降法，效果很好
 		AHRSUpdate_GraDes_Delay_Corretion(MPU_GYRO.gyrox * 1.0, MPU_GYRO.gyroy * 1.0, MPU_GYRO.gyroz * 1.0,
-										  MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz);
+										  MPU_ACC.accx, MPU_ACC.accy, MPU_ACC.accz,
+										 AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz);
 		AttitudePidControl(); //姿态PID控制
 		MotorControl();		  //电机输出
 		usertime = get_system_time() - nowtime;

@@ -80,7 +80,7 @@ int main(void)
 	// Acc_Calibartion(); //简单的偏置校准
 
 	// Accel_six_Calibartion();	//六面校准，太复杂，还没有用上
-	//Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
+	// Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
 
 	TIM1_Int_Init(4999, 71);	//5ms,200HZ	//5ms作为基础
 	TIM3_Int_Init(49999, 7199); //7200分频 	//单次计数5s，精度1/10s，0.1ms

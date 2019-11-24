@@ -44,8 +44,6 @@ float FL_ABS(float x)
 		return x;
 }
 
-
-
 //四元数计算函数，详细的解释请参考资料包里的《姿态解算理解》一文，讲的挺详细，通俗易懂
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
 {
@@ -96,8 +94,6 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	vy = 2 * (q0q1 + q2q3);
 	vz = q0q0 - q1q1 - q2q2 + q3q3;
 	// printf("%.2f\t%.2f\t%.2f\n", vx, vy, vz);
-
-
 
 	//磁力失效
 	if (mx == 0 && my == 0 && mz == 0)
@@ -184,9 +180,9 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	q2 = q2 * norm;
 	q3 = q3 * norm;
 
-	angle_x = atan2(2 * q2q3 + 2 * q0q1, -2 * q1q1 - 2 * q2q2 + 1); // roll
-	angle_y = asin(-2 * q1q3 + 2 * q0q2);							// pitch
-	angle_z = atan2(2 * q1q2 + 2 * q0q3, 1 - 2 * q2q2 - 2 * q3q3);  //y aw
+	angle_x = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1); // roll
+	angle_y = asin(-2 * q1 * q3 + 2 * q0 * q2);									// pitch
+	angle_z = atan2(2 * q1 * q2 + 2 * q0 * q3, 1 - 2 * q2 * q2 - 2 * q3 * q3);  //y aw
 
 	angle_x *= RtA;
 	angle_y *= RtA;
@@ -227,9 +223,6 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
 	// IMU.Sin_Yaw = sin(IMU.yaw * AtR);
 }
 
-
-
-
 //梯度下降法
 //梯度下降法
 typedef volatile struct
@@ -241,18 +234,20 @@ typedef volatile struct
 } Quaternion;
 Quaternion NumQ = {1.0f, 0.0f, 0.0f, 0.0f};
 
-static const uint16_t Quad_Delay = 10; //5
+static const uint16_t Quad_Delay = 1; //5//往后的延迟解算，这里就是我多次运动之后回复缓慢的原因  源程序这里给的是10
 const uint8_t Quad_Num = Quad_Delay;
 float CNTLCYCLE = 0.005f;
 float Yaw_Correct = 0;
 static float Quad_Buf[Quad_Num + 1][4] = {0}; //延时取第10组以后的四元数
 
-void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, float ay, float az)
+void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
 {
 	float recipNorm;				  // 平方根
 	float s0, s1, s2, s3;			  // 梯度下降算子求出来的姿态
 	float qDot1, qDot2, qDot3, qDot4; // 四元数微分方程求得的姿态
-	float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2, _8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
+	float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2, _8q1, _8q2, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+	float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz;
+	float hx, hy;
 	float delta;
 	float tempx, tempy, tempz;
 	u8 i = 0;
@@ -288,6 +283,7 @@ void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, f
 		ax *= recipNorm;
 		ay *= recipNorm;
 		az *= recipNorm;
+
 		/* 避免重复运算 */
 		_2q0 = 2.0f * NumQ.q0;
 		_2q1 = 2.0f * NumQ.q1;
@@ -298,16 +294,56 @@ void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, f
 		_4q2 = 4.0f * NumQ.q2;
 		_8q1 = 8.0f * NumQ.q1;
 		_8q2 = 8.0f * NumQ.q2;
+		_2q0q2 = 2.0f * NumQ.q0 * NumQ.q2;
+		_2q2q3 = 2.0f * NumQ.q2 * NumQ.q3;
 		q0q0 = NumQ.q0 * NumQ.q0;
 		q1q1 = NumQ.q1 * NumQ.q1;
 		q2q2 = NumQ.q2 * NumQ.q2;
 		q3q3 = NumQ.q3 * NumQ.q3;
+		q0q1 = NumQ.q0 * NumQ.q1;
+		q0q2 = NumQ.q0 * NumQ.q2;
+		q0q3 = NumQ.q0 * NumQ.q3;
+		q1q2 = NumQ.q1 * NumQ.q2;
+		q1q3 = NumQ.q1 * NumQ.q3;
+		q2q3 = NumQ.q2 * NumQ.q3;
 
-		/* 梯度下降算法,计算误差函数的梯度 */
-		s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;
-		s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * NumQ.q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
-		s2 = 4.0f * q0q0 * NumQ.q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
-		s3 = 4.0f * q1q1 * NumQ.q3 - _2q1 * ax + 4.0f * q2q2 * NumQ.q3 - _2q2 * ay;
+		//屏蔽磁力计
+		mx = 0;
+		my = 0;
+		mz = 0;
+		//磁力计不工作的情况
+		if (mx == 0 && my == 0 && mz == 0)
+		{
+			/* 梯度下降算法,计算误差函数的梯度 */
+			s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;
+			s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * NumQ.q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
+			s2 = 4.0f * q0q0 * NumQ.q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
+			s3 = 4.0f * q1q1 * NumQ.q3 - _2q1 * ax + 4.0f * q2q2 * NumQ.q3 - _2q2 * ay;
+		}
+		else
+		{
+
+			recipNorm = Q_rsqrt(mx * mx + my * my + mz * mz);
+			mx *= recipNorm;
+			my *= recipNorm;
+			mz *= recipNorm;
+
+			_2q0mx = 2.0f * NumQ.q0 * mx;
+			_2q0my = 2.0f * NumQ.q0 * my;
+			_2q0mz = 2.0f * NumQ.q0 * mz;
+			_2q1mx = 2.0f * NumQ.q1 * mx;
+
+			hx = mx * q0q0 - _2q0my * NumQ.q3 + _2q0mz * NumQ.q2 + mx * q1q1 + _2q1 * my * NumQ.q2 + _2q1 * mz * NumQ.q3 - mx * q2q2 - mx * q3q3;
+			hy = _2q0mx * NumQ.q3 + my * q0q0 - _2q0mz * NumQ.q1 + _2q1mx * NumQ.q2 - my * q1q1 + my * q2q2 + _2q2 * mz * NumQ.q3 - my * q3q3;
+			_2bx = sqrt(hx * hx + hy * hy);
+			_2bz = -_2q0mx * NumQ.q2 + _2q0my * NumQ.q1 + mz * q0q0 + _2q1mx * NumQ.q3 - mz * q1q1 + _2q2 * my * NumQ.q3 - mz * q2q2 + mz * q3q3;
+			_4bx = 2.0f * _2bx;
+			_4bz = 2.0f * _2bz;
+			s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * q2 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q3 + _2bz * q1) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q2 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+			s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q1 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * q3 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q2 + _2bz * q0) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q3 - _4bz * q1) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+			s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q2 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * q2 - _2bz * q0) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q1 + _2bz * q3) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q0 - _4bz * q2) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+			s3 = _2q1 * (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) + (-_4bx * q3 + _2bz * q1) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q0 + _2bz * q2) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q1 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
+		}
 
 		/* 梯度归一化 */
 		recipNorm = Q_rsqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);
@@ -328,6 +364,7 @@ void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, f
 			qDot4 -= BETADEF * s3;
 		}
 	}
+
 	/* 补偿由四元数微分方程引入的姿态误差 */
 	/* 将四元数姿态导数积分,得到当前四元数姿态 */
 	/* 二阶毕卡求解微分方程 */
@@ -336,15 +373,17 @@ void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, f
 	NumQ.q1 = (1.0f - delta / 8.0f) * NumQ.q1 + qDot2 * CNTLCYCLE;
 	NumQ.q2 = (1.0f - delta / 8.0f) * NumQ.q2 + qDot3 * CNTLCYCLE;
 	NumQ.q3 = (1.0f - delta / 8.0f) * NumQ.q3 + qDot4 * CNTLCYCLE;
+
 	/* 单位化四元数 */
 	recipNorm = Q_rsqrt(NumQ.q0 * NumQ.q0 + NumQ.q1 * NumQ.q1 + NumQ.q2 * NumQ.q2 + NumQ.q3 * NumQ.q3);
 	NumQ.q0 *= recipNorm;
 	NumQ.q1 *= recipNorm;
 	NumQ.q2 *= recipNorm;
 	NumQ.q3 *= recipNorm;
-	IMU.pitch = atan2(2.0f * NumQ.q2 * NumQ.q3 + 2.0f * NumQ.q0 * NumQ.q1, -2.0f * NumQ.q1 * NumQ.q1 - 2.0f * NumQ.q2 * NumQ.q2 + 1.0f) * RtA; // Pitch
-	IMU.roll = asin(2.0f * NumQ.q0 * NumQ.q2 - 2.0f * NumQ.q1 * NumQ.q3) * RtA;																   // Roll
-																																			   //NumQ.angle[YAW] = atan2(2.0f * NumQ.q[1] * NumQ.q[2] + 2.0f * NumQ.q[0] * NumQ.q[3], -2.0f * NumQ.q[3] * NumQ.q[3] - 2.0f * NumQ.q[2] * NumQ.q[2] + 1.0f) * RAD2DEG;// Yaw
+	IMU.roll = atan2(2.0f * NumQ.q2 * NumQ.q3 + 2.0f * NumQ.q0 * NumQ.q1, -2.0f * NumQ.q1 * NumQ.q1 - 2.0f * NumQ.q2 * NumQ.q2 + 1.0f) * RtA; // Pitch
+	IMU.pitch = asin(2.0f * NumQ.q0 * NumQ.q2 - 2.0f * NumQ.q1 * NumQ.q3) * RtA;															  // Roll
+	// IMU.yaw_mag = atan2(2 * NumQ.q1 * NumQ.q2 + 2 * NumQ.q0 * NumQ.q3, 1 - 2 * NumQ.q2 * NumQ.q2 - 2 * NumQ.q3 * NumQ.q3);					  //y aw
+																																			  //NumQ.angle[YAW] = atan2(2.0f * NumQ.q[1] * NumQ.q[2] + 2.0f * NumQ.q[0] * NumQ.q[3], -2.0f * NumQ.q[3] * NumQ.q[3] - 2.0f * NumQ.q[2] * NumQ.q[2] + 1.0f) * RAD2DEG;// Yaw
 
 	/*偏航角一阶互补*/
 
@@ -356,7 +395,6 @@ void AHRSUpdate_GraDes_Delay_Corretion(float gx, float gy, float gz, float ax, f
 		IMU.yaw = -IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
 	else
 		IMU.yaw = IMU.yaw * 0.98f + IMU.yaw_mag * 0.02f;
-
 	if (IMU.yaw < 0)
 		yaw_control = IMU.yaw + 360; //如果小于0，则+360
 	else

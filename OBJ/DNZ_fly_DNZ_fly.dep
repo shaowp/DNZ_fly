@@ -1,5 +1,5 @@
 Dependencies for Project 'DNZ_fly', Target 'DNZ_fly': (DO NOT MODIFY !)
-F (.\main.c)(0x5DD7E1E9)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
+F (.\main.c)(0x5DD9255C)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
 I (..\SYSTEM\delay\delay.h)(0x5D638829)
 I (..\SYSTEM\sys\sys.h)(0x550F951C)
 I (..\SYSTEM\stm32f10x.h)(0x504CB780)
@@ -40,7 +40,7 @@ I (..\HAL\data_process.h)(0x5DD7D828)
 I (..\MATH\kalman.h)(0x5D5E5DE3)
 I (..\HARDWARE\TIMER\timer.h)(0x5DD7D57D)
 I (..\HARDWARE\LED\led.h)(0x5DCF96F5)
-I (..\MATH\IMU.h)(0x5DD7D958)
+I (..\MATH\IMU.h)(0x5DD91D33)
 I (..\HAL\ANO_USART.h)(0x5D6E3A2F)
 I (..\HARDWARE\RC\rc_process.h)(0x5D61248B)
 I (..\USB\STM32_USB-FS-Device_Driver\inc\usb_lib.h)(0x4FE124A8)
@@ -59,7 +59,7 @@ I (..\USB\CONFIG\usbio.h)(0x5D6E3A30)
 I (..\HAL\control.h)(0x5D6E5063)
 I (..\HAL\pid.h)(0x5DBD4FC0)
 I (..\HARDWARE\ST_FLASH\stflash.h)(0x5D6FA388)
-F (..\HARDWARE\AK8975\AK8975.c)(0x5DD7D84D)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\ak8975.o --omf_browse ..\obj\ak8975.crf --depend ..\obj\ak8975.d)
+F (..\HARDWARE\AK8975\AK8975.c)(0x5DD926C9)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\ak8975.o --omf_browse ..\obj\ak8975.crf --depend ..\obj\ak8975.d)
 I (..\HARDWARE\AK8975\AK8975.h)(0x5D600AB4)
 I (..\SYSTEM\usart\usart.h)(0x50517A82)
 I (I:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588B8344)
@@ -98,7 +98,7 @@ I (..\HAL\data_process.h)(0x5DD7D828)
 I (..\MATH\kalman.h)(0x5D5E5DE3)
 I (..\HARDWARE\MPU6050\mpu6050.h)(0x5DD7DEC4)
 I (I:\Keil_v5\ARM\ARMCC\include\math.h)(0x588B8344)
-F (..\HARDWARE\MPU6050\mpu6050.c)(0x5DD7E1E5)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\mpu6050.o --omf_browse ..\obj\mpu6050.crf --depend ..\obj\mpu6050.d)
+F (..\HARDWARE\MPU6050\mpu6050.c)(0x5DD8F7E4)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\mpu6050.o --omf_browse ..\obj\mpu6050.crf --depend ..\obj\mpu6050.d)
 I (..\HARDWARE\MPU6050\mpu6050.h)(0x5DD7DEC4)
 I (..\HARDWARE\SOFT_IIC\softiic.h)(0x5D5E03AA)
 I (..\SYSTEM\sys\sys.h)(0x550F951C)
@@ -734,8 +734,8 @@ I (..\STM32F10x_FWLib\inc\stm32f10x_tim.h)(0x4D783BB4)
 I (..\STM32F10x_FWLib\inc\stm32f10x_usart.h)(0x4D783BB4)
 I (..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h)(0x4D783BB4)
 I (..\STM32F10x_FWLib\inc\misc.h)(0x4D783BB4)
-F (..\MATH\IMU.c)(0x5DD7D6E0)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\imu.o --omf_browse ..\obj\imu.crf --depend ..\obj\imu.d)
-I (..\MATH\IMU.h)(0x5DD7D958)
+F (..\MATH\IMU.c)(0x5DD925DD)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\imu.o --omf_browse ..\obj\imu.crf --depend ..\obj\imu.d)
+I (..\MATH\IMU.h)(0x5DD91D33)
 I (I:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
 I (..\HARDWARE\MPU6050\mpu6050.h)(0x5DD7DEC4)
 I (..\HARDWARE\SOFT_IIC\softiic.h)(0x5D5E03AA)
@@ -811,7 +811,7 @@ I (I:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
 I (I:\Keil_v5\ARM\ARMCC\include\string.h)(0x588B8344)
 I (I:\Keil_v5\ARM\ARMCC\include\math.h)(0x588B8344)
 I (..\MATH\maths.h)(0x5DD14561)
-F (..\HAL\data_process.c)(0x5DD7D90A)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\data_process.o --omf_browse ..\obj\data_process.crf --depend ..\obj\data_process.d)
+F (..\HAL\data_process.c)(0x5DD92B91)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\data_process.o --omf_browse ..\obj\data_process.crf --depend ..\obj\data_process.d)
 I (..\HAL\data_process.h)(0x5DD7D828)
 I (..\MATH\kalman.h)(0x5D5E5DE3)
 I (..\HARDWARE\MPU6050\mpu6050.h)(0x5DD7DEC4)
@@ -853,7 +853,7 @@ I (..\HARDWARE\AK8975\AK8975.h)(0x5D600AB4)
 I (..\MATH\filter.h)(0x5DD1447C)
 I (I:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 I (I:\Keil_v5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (..\MATH\IMU.h)(0x5DD7D958)
+I (..\MATH\IMU.h)(0x5DD91D33)
 F (..\HAL\ANO_USART.c)(0x5DBD4FD6)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\ano_usart.o --omf_browse ..\obj\ano_usart.crf --depend ..\obj\ano_usart.d)
 I (..\HAL\ANO_USART.h)(0x5D6E3A2F)
 I (..\SYSTEM\delay\delay.h)(0x5D638829)
@@ -892,7 +892,7 @@ I (..\USB\CONFIG\usbio.h)(0x5D6E3A30)
 I (..\HAL\pid.h)(0x5DBD4FC0)
 I (..\HARDWARE\ST_FLASH\stflash.h)(0x5D6FA388)
 I (..\HARDWARE\SOFT_IIC\softiic.h)(0x5D5E03AA)
-F (..\HAL\scheduler.c)(0x5DD7DAF6)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\scheduler.o --omf_browse ..\obj\scheduler.crf --depend ..\obj\scheduler.d)
+F (..\HAL\scheduler.c)(0x5DD9229A)(--c99 -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\HARDWARE\LED -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\STM32F10x_FWLib\inc -I ..\CORE -I ..\SYSTEM -I ..\HARDWARE\AK8975 -I ..\HARDWARE\MPU6050 -I ..\HARDWARE\SOFT_IIC -I ..\HARDWARE\TIMER -I ..\MATH -I ..\HAL -I ..\HARDWARE\INTERRUPT -I ..\HARDWARE\RC -I ..\USB\CONFIG -I ..\USB\STM32_USB-FS-Device_Driver\inc -I ..\USB\CONFIG -I ..\HARDWARE\ST_FLASH -I ..\HARDWARE\LED-I.\RTE\_DNZ_fly-II:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include-II:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\obj\scheduler.o --omf_browse ..\obj\scheduler.crf --depend ..\obj\scheduler.d)
 I (..\HAL\scheduler.h)(0x5D60AF7F)
 I (..\SYSTEM\sys\sys.h)(0x550F951C)
 I (..\SYSTEM\stm32f10x.h)(0x504CB780)
@@ -932,7 +932,7 @@ I (..\HARDWARE\MPU6050\mpu6050.h)(0x5DD7DEC4)
 I (I:\Keil_v5\ARM\ARMCC\include\math.h)(0x588B8344)
 I (..\HAL\data_process.h)(0x5DD7D828)
 I (..\MATH\kalman.h)(0x5D5E5DE3)
-I (..\MATH\IMU.h)(0x5DD7D958)
+I (..\MATH\IMU.h)(0x5DD91D33)
 I (..\HAL\ANO_USART.h)(0x5D6E3A2F)
 I (..\HAL\control.h)(0x5D6E5063)
 I (..\HAL\pid.h)(0x5DBD4FC0)
@@ -970,7 +970,7 @@ I (..\STM32F10x_FWLib\inc\stm32f10x_tim.h)(0x4D783BB4)
 I (..\STM32F10x_FWLib\inc\stm32f10x_usart.h)(0x4D783BB4)
 I (..\STM32F10x_FWLib\inc\stm32f10x_wwdg.h)(0x4D783BB4)
 I (..\STM32F10x_FWLib\inc\misc.h)(0x4D783BB4)
-I (..\MATH\IMU.h)(0x5DD7D958)
+I (..\MATH\IMU.h)(0x5DD91D33)
 I (..\HARDWARE\MPU6050\mpu6050.h)(0x5DD7DEC4)
 I (..\HARDWARE\SOFT_IIC\softiic.h)(0x5D5E03AA)
 I (..\SYSTEM\delay\delay.h)(0x5D638829)

@@ -7,12 +7,6 @@
 
 #define QUEUE_SIZE 20
 
-
-
-
-
-
-
 //匿名滤波
 //---------------------------------------------------------------------//
 #define RANGE_PN2000_TO_RAD 0.001065f
@@ -83,9 +77,6 @@ void ACC_IMU_Filter_ANO(void)
 	MPU_ACC.accz = acc_f[0][2] - center_pos.linear_acc[2] / RANGE_PN16G_TO_CMSS; //sensor_val_ref[A_X+i];//
 }
 //---------------------------------------------------------------------//
-
-
-
 
 //-----------------------------------------------------------------------//
 //软件低通滤波
@@ -172,7 +163,6 @@ void ACC_IMU_Filter_ButterWorth(void)
 }
 //---------------------------------------------------------------------------------//
 
-
 //---------------------------------------------------------------------------------//
 //卡尔曼滤波
 void ACC_IMU_Filter(void)
@@ -203,7 +193,6 @@ void GYRO_IMU_Filter(void)
 }
 //---------------------------------------------------------------------------------//
 
-
 //---------------------------------------------------------------------------------//
 //磁力计滤波
 void MAG_IMU_Filter(void)
@@ -219,14 +208,16 @@ void MAG_IMU_Filter(void)
 	/************磁力计倾角补偿*****************/
 	float TempX;
 	float TempY;
-	TempX = AK8975_MAG.mx * IMU.Cos_Roll + AK8975_MAG.mz * IMU.Sin_Roll;
-	TempY = AK8975_MAG.mx * IMU.Sin_Pitch * IMU.Sin_Roll + AK8975_MAG.my * IMU.Cos_Pitch - AK8975_MAG.mz * IMU.Cos_Roll * IMU.Sin_Pitch;
+
+	TempX = AK8975_MAG.mx * IMU.Cos_Pitch + AK8975_MAG.my * IMU.Sin_Pitch * IMU.Sin_Roll + AK8975_MAG.mz * IMU.Sin_Pitch * IMU.Cos_Roll;
+	TempY=AK8975_MAG.my*IMU.Cos_Roll-AK8975_MAG.mz*IMU.Sin_Roll;
+	// TempX = AK8975_MAG.mx * IMU.Cos_Roll + AK8975_MAG.mz * IMU.Sin_Roll;
+	// TempY = AK8975_MAG.mx * IMU.Sin_Pitch * IMU.Sin_Roll + AK8975_MAG.my * IMU.Cos_Pitch - AK8975_MAG.mz * IMU.Cos_Roll * IMU.Sin_Pitch;
+
 	/***********反正切得到磁力计观测角度*********/
-	IMU.yaw_mag = atan2(TempX, TempY) * 57.296; //得到罗盘偏航角
+	IMU.yaw_mag = atan2(-TempY, TempX) * 57.296; //得到罗盘偏航角
 }
 //---------------------------------------------------------------------------------//
-
-
 
 //---------------------------------------------------------------------------------//
 //滑动均值滤波
@@ -245,8 +236,6 @@ void ACC_IMU_Filter_Queue_init(void)
 }
 void ACC_IMU_Filter_Queue(void)
 {
-
-
 
 	// float tempACCx = 0;
 	// qACCx1 = qACCx2;
@@ -361,7 +350,3 @@ float FrontAndDequeue(Typedef_Queue *q) //出队，返回出队的元素
 	}
 }
 //---------------------------------------------------------------------------------//
-
-
-
-

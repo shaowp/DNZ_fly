@@ -167,6 +167,8 @@ u8 MPU_Get_Accelerometer(short *ax, short *ay, short *az)
 	MPU_ACC.accx = K[0] * temp_ax - B[0] * One_G_TO_Accel; //六面校准得出的K、B值在这里用到
 	MPU_ACC.accy = K[1] * temp_ay - B[1] * One_G_TO_Accel;
 	MPU_ACC.accz = K[2] * temp_az - B[2] * One_G_TO_Accel;
+
+	
 	// MPU_ACC.accx = temp_ax - MPU_ACC.accx_offset;
 	// MPU_ACC.accy = temp_ay - MPU_ACC.accy_offset;
 	// MPU_ACC.accz = temp_az - MPU_ACC.accz_offset;
