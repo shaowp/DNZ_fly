@@ -4,8 +4,8 @@
 Struct_PID RateX_PID, RateY_PID, RateZ_PID; //内环
 Struct_PID Pitch_PID, Roll_PID, Yaw_PID;	//外环
 
-u8 PID_send_flag; //向上位机发送PID数据
-u8 PID_save_flag; //将上位机发来的数据存储到内存中
+u8 PID_send_flag = 0; //向上位机发送PID数据
+u8 PID_save_flag = 0; //将上位机发来的数据存储到内存中
 
 //PID计算，分为内环和外环的计算
 //9月2日：为了完成原型，使用分开编写内外环代码
@@ -113,7 +113,7 @@ void PID_Init() //PID参数初始化
 
 void send_PID(void)
 {
-	read_PID();
+	//read_PID();	//如果有AT24C02则使用
 	ANO_DT_Send_PID(1, RateX_PID.Kp, RateX_PID.Ki, RateX_PID.Kd,
 					RateY_PID.Kp, RateY_PID.Ki, RateY_PID.Kd,
 					RateZ_PID.Kp, RateZ_PID.Ki, RateZ_PID.Kd);

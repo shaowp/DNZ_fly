@@ -48,7 +48,7 @@
 "..\obj\usb_mem.o"
 "..\obj\usb_regs.o"
 "..\obj\usb_sil.o"
---strict --scatter "..\OBJ\DNZ_fly.sct"
+--library_type=microlib --strict --scatter "..\OBJ\DNZ_fly.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list ".\DNZ_fly.map" -o ..\OBJ\DNZ_fly.axf

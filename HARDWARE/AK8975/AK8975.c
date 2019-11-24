@@ -54,16 +54,26 @@ int8_t AK8975_Init(void)
 	// MagOffset.y	0.117689300951695
 	// MagOffset.z	0.441865692407673
 
-	AK8975_MAG.G_mx_offset = 0.171153105433637;
-	AK8975_MAG.G_my_offset = 0.117689300951695;
-	AK8975_MAG.G_mz_offset = 0.441865692407673;
+	// B[0]	0.957026426930742
+	// B[1]	0.0165754549567017
+	// B[2]	0.01342343650957
+	// B[3]	0.986420061813752
+	// B[4]	0.0124149249348303
+	// B[5]	1.05993545265681
+	// MagOffset.x	0.216710172642702
+	// MagOffset.y	0.0476144981858627
+	// MagOffset.z	0.386709051494276
 
-	AK8975_MAG.B0 = 0.978159800683319;
-	AK8975_MAG.B1 = 0.0277336735007092;
-	AK8975_MAG.B2 = -0.00913877197069905;
-	AK8975_MAG.B3 = 0.917252088924231;
-	AK8975_MAG.B4 = -0.00854149701920429;
-	AK8975_MAG.B5 = 1.11567146041836;
+	AK8975_MAG.G_mx_offset = 0.216710172642702;
+	AK8975_MAG.G_my_offset = 0.0476144981858627;
+	AK8975_MAG.G_mz_offset = 0.386709051494276;
+
+	AK8975_MAG.B0 = 0.957026426930742;
+	AK8975_MAG.B1 = 0.0165754549567017;
+	AK8975_MAG.B2 = 0.01342343650957;
+	AK8975_MAG.B3 = 0.986420061813752;
+	AK8975_MAG.B4 = 0.0124149249348303;
+	AK8975_MAG.B5 = 1.05993545265681;
 	delay_ms(10); //延时等待磁力计可用
 	return 0;	 //成功为0，返回0
 }
@@ -88,14 +98,14 @@ int8_t AK8975_Updata(void)
 // #define NEED_CAL_MAG
 #ifdef NEED_CAL_MAG
 	// 校准的时候需要
-	G_mx = temp_mx / 341.0;
-	G_my = temp_my / 341.0;
-	G_mz = temp_mz / 341.0;
+	G_mx = temp_mx / 333.0;
+	G_my = temp_my / 333.0;
+	G_mz = temp_mz / 333.0;
 	printf("%f\t %f\t %f\n", G_mx, G_my, G_mz);
 #else
 	// //校准之后需要使用
-	G_mx = temp_mx / 341.0 - AK8975_MAG.G_mx_offset;
-	G_my = temp_my / 341.0 - AK8975_MAG.G_my_offset;
+	G_mx = temp_mx / 333.0 - AK8975_MAG.G_mx_offset;
+	G_my = temp_my / 333.0 - AK8975_MAG.G_my_offset;
 	G_mz = temp_mz / 341.0 - AK8975_MAG.G_mz_offset;
 
 	// printf("%.2f\t %.2f\t %.2f\n", G_mx, G_my, G_mz);
@@ -104,12 +114,10 @@ int8_t AK8975_Updata(void)
 	AK8975_MAG.G_mz = AK8975_MAG.B2 * G_mx + AK8975_MAG.B4 * G_my + AK8975_MAG.B5 * G_mz;
 
 	//数据放到磁力计主数据
-	AK8975_MAG.mx = AK8975_MAG.G_mx * 341.0; //特别注意方向，方向非常重要
-	AK8975_MAG.my = AK8975_MAG.G_my * 341.0;
-	AK8975_MAG.mz = AK8975_MAG.G_mz * 341.0;
+	AK8975_MAG.mx = AK8975_MAG.G_mx * 333.0; //特别注意方向，方向非常重要
+	AK8975_MAG.my = AK8975_MAG.G_my * 333.0;
+	AK8975_MAG.mz = AK8975_MAG.G_mz * 333.0;
 
-
-	
 #endif
 
 	MAG_Write_Byte(0x0A, 0x11); //0x10 16位模式  0x 01 单次测量模式		//14位 - 0.6uT/LSB      16位 - 0.15uT/LSB

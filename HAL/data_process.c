@@ -209,8 +209,11 @@ void MAG_IMU_Filter(void)
 	float TempX;
 	float TempY;
 
+	//正确的姿态角补偿磁力计
 	TempX = AK8975_MAG.mx * IMU.Cos_Pitch + AK8975_MAG.my * IMU.Sin_Pitch * IMU.Sin_Roll + AK8975_MAG.mz * IMU.Sin_Pitch * IMU.Cos_Roll;
 	TempY=AK8975_MAG.my*IMU.Cos_Roll-AK8975_MAG.mz*IMU.Sin_Roll;
+	
+	//原来程序里的，因为方向不同，所以解算是错的
 	// TempX = AK8975_MAG.mx * IMU.Cos_Roll + AK8975_MAG.mz * IMU.Sin_Roll;
 	// TempY = AK8975_MAG.mx * IMU.Sin_Pitch * IMU.Sin_Roll + AK8975_MAG.my * IMU.Cos_Pitch - AK8975_MAG.mz * IMU.Cos_Roll * IMU.Sin_Pitch;
 
