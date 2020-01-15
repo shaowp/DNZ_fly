@@ -60,15 +60,16 @@ int main(void)
 	MPU_Init();
 	AK8975_Init();
 	ACC_IMU_Filter_Queue_init();
-	// AT24CXX_Init();
+#ifdef USE_AT24C02
+	AT24CXX_Init();
+#endif
 	ACC_IMU_Filter_SOFT_INIT(200);
-	
+
 	TIM1_Int_Init(4999, 71);	//5ms,200HZ	//5ms作为基础
 	TIM3_Int_Init(49999, 7199); //7200分频 	//单次计数5s，精度1/10s，0.1ms
 	TIM2_PWM_Init(19999, 71);   //20ms,50HZ
 	TIM4_Cap_Init(19999, 71);   //72000000/72=1MHZ,跑2W次，1/1M s*2W=0.02s
-	
-	
+
 	delay_ms(1800);
 	USB_Port_Set(0); //USB先断开
 	delay_ms(700);
@@ -76,7 +77,8 @@ int main(void)
 	USB_Interrupts_Config();
 	Set_USBClock();
 	USB_Init();
-	PID_Init(); //PID参数初始化
+	PID_INIT_ALL();
+	// PID_Init(); //PID参数初始化
 
 	LED0 = 0;
 	LED1 = 0;
@@ -89,7 +91,7 @@ int main(void)
 	// Accel_six_Calibartion();	//六面校准
 	// Mag_Calibartion();  //校准使用上位机ANTMAG校准，吧数据导出来为txt校准
 
-								//72000000/7200=10000Hz,10kHz, 1/10k=0.0001s,跑200次  10k/200=
+	//72000000/7200=10000Hz,10kHz, 1/10k=0.0001s,跑200次  10k/200=
 	//BLDC_calibration();						   //电调校准	TIM2 //校准一次就好
 	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE); //使能指定的TIM1中断,允许更新中断
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE); //使能指定的TIM3中断,允许更新中断
@@ -105,7 +107,7 @@ int main(void)
 						   AK8975_MAG.mx, AK8975_MAG.my, AK8975_MAG.mz, 0);
 		delay_ms(1);
 		//发送飞控状态
-		ANO_DT_Send_Status(IMU.roll, IMU.pitch, IMU.yaw, 0, 0, 0);
+		ANO_DT_Send_Status(IMU.roll, IMU.pitch, IMU.yaw, 0, 0, LOCK_STATUS);
 		delay_ms(1);
 
 		//发送遥控器数据
@@ -113,7 +115,7 @@ int main(void)
 		delay_ms(1);
 
 		//发送电机数据
-		ANO_DT_Send_MotoPWM(MOTOR1 - 1000, MOTOR2 - 1000, MOTOR3 - 1000, MOTOR4 - 1000, 0, 0, 0, 0);
+		ANO_DT_Send_MotoPWM(MOTOR1 , MOTOR2 , MOTOR3, MOTOR4 , 0, 0, 0, 0);
 		delay_ms(1);
 
 		//发送PID数据
@@ -123,10 +125,11 @@ int main(void)
 			delay_ms(1);
 			PID_send_flag = 0;
 		}
-
 		if (PID_save_flag)
 		{
-			//save_PID();
+#ifdef USE_AT24C02
+			save_PID();
+#endif
 			delay_ms(1);
 			PID_save_flag = 0;
 		}

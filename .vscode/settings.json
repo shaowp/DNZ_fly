@@ -29,6 +29,7 @@
 		"platform_config.h": "c",
 		"stflash.h": "c",
 		"led.h": "c",
-		"string.h": "c"
+		"string.h": "c",
+		"filter.h": "c"
 	}
 }

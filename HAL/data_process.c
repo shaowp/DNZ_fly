@@ -161,6 +161,26 @@ void ACC_IMU_Filter_ButterWorth(void)
 	MPU_ACC.accy = accelFilter[1];
 	MPU_ACC.accz = accelFilter[2];
 }
+
+
+float Control_Device_LPF(float curr_inputer, Butter_BufferData *Buffer, Butter_Parameter *Parameter)
+{
+	/* 加速度计Butterworth滤波 */
+	/* 获取最新x(n) */
+	Buffer->Input_Butter[2] = curr_inputer;
+	/* Butterworth滤波 */
+	Buffer->Output_Butter[2] =
+		Parameter->b[0] * Buffer->Input_Butter[2] + Parameter->b[1] * Buffer->Input_Butter[1] + Parameter->b[2] * Buffer->Input_Butter[0] - Parameter->a[1] * Buffer->Output_Butter[1] - Parameter->a[2] * Buffer->Output_Butter[0];
+	/* x(n) 序列保存 */
+	Buffer->Input_Butter[0] = Buffer->Input_Butter[1];
+	Buffer->Input_Butter[1] = Buffer->Input_Butter[2];
+	/* y(n) 序列保存 */
+	Buffer->Output_Butter[0] = Buffer->Output_Butter[1];
+	Buffer->Output_Butter[1] = Buffer->Output_Butter[2];
+	return (Buffer->Output_Butter[2]);
+}
+
+
 //---------------------------------------------------------------------------------//
 
 //---------------------------------------------------------------------------------//

@@ -12,7 +12,17 @@ void GYRO_IMU_Filter(void);							//磁力计滤波
 void MAG_IMU_Filter(void);							//磁力计滤波
 void ACC_IMU_Filter_ButterWorth(void);				//加速度计，巴特沃斯滤波
 
+typedef struct
+{
+	float Input_Butter[3];
+	float Output_Butter[3];
+} Butter_BufferData;
 
+typedef struct
+{
+	const float a[3];
+	const float b[3];
+} Butter_Parameter;
 
 typedef struct QueUE
 {
@@ -27,6 +37,7 @@ typedef struct QueUE
 
 void ACC_IMU_Filter_Queue_init(void);
 void ACC_IMU_Filter_Queue(void);
+float Control_Device_LPF(float curr_input, Butter_BufferData *Buffer, Butter_Parameter *Parameter); //低通滤波器
 
 int IsEmpty(Typedef_Queue *q);			 //判断是否空
 int IsFull(Typedef_Queue *q);			 //判断是否满

@@ -2,6 +2,7 @@
 #include "control.h"
 #include "pid.h"
 #include "timer.h"
+#include "led.h"
 //定时器1的定时任务
 //核心处理函数
 void TIM1_UP_IRQHandler(void) //TIM3中断
@@ -44,6 +45,8 @@ void TIM1_UP_IRQHandler(void) //TIM3中断
 		}
 		if (count == 2000) //5ms,10ms,15ms,20ms都在这个120里面了
 			count = 0;
+
+		Unlock_check(); //检测是否上锁
 
 		//姿态解算 mahony互补滤波，效果不太好
 		// IMUupdate(MPU_GYRO.gyrox * 1.0, MPU_GYRO.gyroy * 1.0, MPU_GYRO.gyroz * 1.0,
